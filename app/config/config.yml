@@ -74,3 +74,11 @@ stof_doctrine_extensions:
         default:
             timestampable: true
             sluggable:     true
+
+fos_user:
+    db_driver: orm
+    firewall_name: main
+    user_class: UserBundle\Entity\User
+    from_email:
+        address: "%mailer_user%"
+        sender_name: "%mailer_user%"
