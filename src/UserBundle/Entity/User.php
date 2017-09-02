@@ -31,7 +31,7 @@ class User extends BaseUser
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(name="created_at", type="datetime")
      */
-    private $createdAt;
+    protected $createdAt;
 
     /**
      * @var DateTime
@@ -39,7 +39,7 @@ class User extends BaseUser
      * @Gedmo\Timestampable(on="change", field={"username", "email"})
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
-    private $updatedAt;
+    protected $updatedAt;
 
     /**
      * Sets the user creation date.
