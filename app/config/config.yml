@@ -83,6 +83,16 @@ jms_serializer:
                 namespace_prefix: FOS\UserBundle
                 path: "@UserBundle/Resources/config/serializer"
 
+nelmio_cors:
+    defaults:
+        allow_credentials: false
+    paths:
+        '^/':
+            allow_origin: ['*']
+            allow_headers: ['*']
+            allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
+            max_age: 3600
+
 fos_user:
     db_driver: orm
     firewall_name: main
