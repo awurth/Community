@@ -75,6 +75,14 @@ stof_doctrine_extensions:
             timestampable: true
             sluggable:     true
 
+jms_serializer:
+    metadata:
+        auto_detection: true
+        directories:
+            FOSUB:
+                namespace_prefix: FOS\UserBundle
+                path: "@UserBundle/Resources/config/serializer"
+
 fos_user:
     db_driver: orm
     firewall_name: main
