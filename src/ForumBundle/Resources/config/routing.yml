@@ -1,0 +1,15 @@
+forum_category:
+    type: rest
+    resource: ForumBundle\Controller\CategoryController
+
+forum_forum:
+    type: rest
+    resource: ForumBundle\Controller\ForumController
+
+forum_topic:
+    type: rest
+    resource: ForumBundle\Controller\TopicController
+
+forum_post:
+    type: rest
+    resource: ForumBundle\Controller\PostController
