@@ -1,7 +1,11 @@
+forum:
+    resource: "@ForumBundle/Resources/config/routing.yml"
+    prefix:   /
+
 app_homepage:
     path:     /
     defaults: { _controller: AppBundle:Default:index }
     methods:  [GET]
 
 fos_user:
-    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+    resource: "@FOSUserBundle/Resources/config/routing/security.xml"

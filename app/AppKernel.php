@@ -26,6 +26,7 @@ class AppKernel extends Kernel
 
             // App Bundles
             new AppBundle\AppBundle(),
+            new ForumBundle\ForumBundle(),
             new UserBundle\UserBundle(),
         ];
 
