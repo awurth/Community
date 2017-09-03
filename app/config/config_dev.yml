@@ -39,3 +39,13 @@ monolog:
 
 #swiftmailer:
 #    delivery_addresses: ['me@example.com']
+
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Community
+            description: Community website
+            version: 1.0.0
+    routes:
+        path_patterns:
+            - ^/(?!_wdt|_profiler|_error)
