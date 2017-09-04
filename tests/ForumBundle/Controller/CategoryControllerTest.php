@@ -14,6 +14,7 @@ class CategoryControllerTest extends WebTestCase
     {
         parent::setUp();
 
+        $this->emptyTable('forum_forum');
         $this->emptyTable('forum_category');
     }
 
@@ -21,7 +22,7 @@ class CategoryControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('GET', '/categories');
+        $client->request('GET', '/forum/categories');
         $response = $client->getResponse();
 
         $this->assertIsOk($response);
@@ -33,7 +34,7 @@ class CategoryControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('GET', '/categories/1');
+        $client->request('GET', '/forum/categories/1');
         $response = $client->getResponse();
 
         $this->assertIsNotFound($response);
@@ -46,7 +47,7 @@ class CategoryControllerTest extends WebTestCase
 
         $client = static::createClient();
 
-        $client->request('GET', '/categories/' . $category->getId());
+        $client->request('GET', '/forum/categories/' . $category->getId());
         $response = $client->getResponse();
 
         $this->assertIsOk($response);
@@ -65,7 +66,7 @@ class CategoryControllerTest extends WebTestCase
 
         $client = static::createClient();
 
-        $response = $this->post($client, '/categories', $content);
+        $response = $this->post($client, '/forum/categories', $content);
 
         // Test Response
         $this->assertIsCreated($response);
@@ -85,7 +86,7 @@ class CategoryControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $response = $this->post($client, '/categories', $category);
+        $response = $this->post($client, '/forum/categories', $category);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -108,7 +109,7 @@ class CategoryControllerTest extends WebTestCase
             }
         }';
 
-        $response = $this->put($client, '/categories/' . $categoryToUpdate->getId(), $updatedCategory);
+        $response = $this->put($client, '/forum/categories/' . $categoryToUpdate->getId(), $updatedCategory);
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -130,7 +131,7 @@ class CategoryControllerTest extends WebTestCase
 
         $categoryToUpdate = $this->createCategory();
 
-        $response = $this->put($client, '/categories/' . $categoryToUpdate->getId(), $category);
+        $response = $this->put($client, '/forum/categories/' . $categoryToUpdate->getId(), $category);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -140,7 +141,7 @@ class CategoryControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $response = $this->put($client, '/categories/1', '');
+        $response = $this->put($client, '/forum/categories/1', '');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -156,7 +157,7 @@ class CategoryControllerTest extends WebTestCase
         $this->assertSame('Category to delete', $createdCategory->getTitle());
         $this->assertNull($createdCategory->getUpdatedAt());
 
-        $client->request('DELETE', '/categories/' . $categoryToDelete->getId());
+        $client->request('DELETE', '/forum/categories/' . $categoryToDelete->getId());
         $response = $client->getResponse();
 
         // Test Response
@@ -172,7 +173,7 @@ class CategoryControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request('DELETE', '/categories/1');
+        $client->request('DELETE', '/forum/categories/1');
         $response = $client->getResponse();
 
         $this->assertIsNotFound($response);
