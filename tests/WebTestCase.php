@@ -60,7 +60,7 @@ class WebTestCase extends BaseWebTestCase
     {
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         if ($checkLocationHeader) {
-            $this->assertNotNull($response->headers->get('Location'));
+            $this->assertTrue($response->headers->has('Location'));
         }
     }
 
