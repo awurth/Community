@@ -104,6 +104,7 @@ fos_user:
 fos_rest:
     allowed_methods_listener: true
     body_listener: true
+    param_fetcher_listener: true
     routing_loader:
         default_format: json
         include_format: false

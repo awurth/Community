@@ -9,7 +9,9 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Put;
+use FOS\RestBundle\Controller\Annotations\QueryParam;
 use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +21,25 @@ class CategoryController extends RestController
     /**
      * @Get(name="get_forum_categories", options={ "method_prefix" = false })
      * @View
+     * @QueryParam(
+     *     name="order",
+     *     requirements="asc|desc",
+     *     default="asc",
+     *     description="Sort order (asc or desc)"
+     * )
+     * @QueryParam(
+     *     name="page",
+     *     requirements="\d+",
+     *     default="1",
+     *     description="The current page"
+     * )
+     * @QueryParam(
+     *     name="per_page",
+     *     requirements="\d+",
+     *     default="15",
+     *     description="Max number of categories per page"
+     * )
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Returns all forum categories",
@@ -29,12 +50,16 @@ class CategoryController extends RestController
      * )
      * @SWG\Tag(name="forum")
      */
-    public function getCategoriesAction()
+    public function getCategoriesAction(ParamFetcher $paramFetcher)
     {
         return $this->getDoctrine()
             ->getManager()
             ->getRepository('ForumBundle:Category')
-            ->findAll();
+            ->getCollection(
+                $paramFetcher->get('per_page'),
+                $paramFetcher->get('page'),
+                $paramFetcher->get('order')
+            );
     }
 
     /**
