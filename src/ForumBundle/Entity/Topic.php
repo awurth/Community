@@ -21,6 +21,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         parameters = { "id" = "expr(object.getId())" }
  *     )
  * )
+ * @Hateoas\Relation(
+ *     "forum",
+ *     href = @Hateoas\Route(
+ *         "get_forum_forum",
+ *         parameters = { "id" = "expr(object.getForum().getId())" }
+ *     )
+ * )
  */
 class Topic
 {
@@ -71,6 +78,8 @@ class Topic
      *
      * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Forum", inversedBy="topics")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @JMS\Exclude
      */
     protected $forum;
 

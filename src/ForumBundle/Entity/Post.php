@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use UserBundle\Entity\User;
 use Hateoas\Configuration\Annotation as Hateoas;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,6 +19,20 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     href = @Hateoas\Route(
  *         "get_forum_post",
  *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "author",
+ *     href = @Hateoas\Route(
+ *         "get_user",
+ *         parameters = { "id" = "expr(object.getAuthor().getId())" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "topic",
+ *     href = @Hateoas\Route(
+ *         "get_forum_topic",
+ *         parameters = { "id" = "expr(object.getTopic().getId())" }
  *     )
  * )
  */
@@ -61,6 +76,8 @@ class Post
      *
      * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @JMS\Exclude
      */
     protected $author;
 
@@ -69,6 +86,8 @@ class Post
      *
      * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Topic", inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @JMS\Exclude
      */
     protected $topic;
 
