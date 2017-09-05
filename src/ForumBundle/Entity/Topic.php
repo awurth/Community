@@ -77,7 +77,7 @@ class Topic
      * @var Forum
      *
      * @Assert\NotNull
-     * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Forum", inversedBy="topics")
+     * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Forum", cascade={"persist"}, inversedBy="topics")
      * @ORM\JoinColumn(nullable=false)
      *
      * @JMS\Exclude

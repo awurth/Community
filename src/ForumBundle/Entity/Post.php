@@ -75,7 +75,7 @@ class Post
      * @var User
      *
      * @Assert\NotNull
-     * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      *
      * @JMS\Exclude
@@ -85,7 +85,7 @@ class Post
     /**
      * @var Topic
      *
-     * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Topic", inversedBy="posts")
+     * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Topic", cascade={"persist"}, inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
      *
      * @JMS\Exclude
