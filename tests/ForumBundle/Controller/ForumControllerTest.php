@@ -24,7 +24,7 @@ class ForumControllerTest extends WebTestCase
         $this->emptyTable('forum_forum');
         $this->emptyTable('forum_category');
 
-        $this->category = $this->createCategory('First category', 'This is the first category');
+        $this->category = $this->createCategory();
     }
 
     public function testGetForums()

@@ -26,7 +26,7 @@ class TopicControllerTest extends WebTestCase
         $this->emptyTable('forum_category');
 
         $category = $this->createCategory();
-        $this->forum = $this->createForum($category, 'First forum', 'This is the first forum');
+        $this->forum = $this->createForum($category);
     }
 
     public function testGetTopics()
