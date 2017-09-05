@@ -21,6 +21,7 @@ class TopicControllerTest extends WebTestCase
     {
         parent::setUp();
 
+        $this->emptyTable('forum_post');
         $this->emptyTable('forum_topic');
         $this->emptyTable('forum_forum');
         $this->emptyTable('forum_category');
