@@ -5,11 +5,7 @@ namespace ForumBundle\Controller;
 use AppBundle\Controller\RestController;
 use ForumBundle\Entity\Topic;
 use ForumBundle\Form\Type\TopicType;
-use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Put;
-use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 class TopicController extends RestController
 {
     /**
-     * @Get(name="get_forum_topics", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Get(name="get_forum_topics", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Returns all forum topics",
@@ -38,8 +35,9 @@ class TopicController extends RestController
     }
 
     /**
-     * @Get(name="get_forum_topic", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Get(name="get_forum_topic", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Gets a forum topic by it's id",
@@ -69,8 +67,9 @@ class TopicController extends RestController
     }
 
     /**
-     * @Post(name="post_forum_topic", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Post(name="post_forum_topic", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=201,
      *     description="Creates a new forum topic"
@@ -83,8 +82,9 @@ class TopicController extends RestController
     }
 
     /**
-     * @Put(name="put_forum_topic", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Put(name="put_forum_topic", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=204,
      *     description="Updates a forum topic"
@@ -112,8 +112,9 @@ class TopicController extends RestController
     }
 
     /**
-     * @Delete(name="delete_forum_topic", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Delete(name="delete_forum_topic", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=204,
      *     description="Deletes a forum topic"

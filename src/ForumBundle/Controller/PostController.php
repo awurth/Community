@@ -5,11 +5,7 @@ namespace ForumBundle\Controller;
 use AppBundle\Controller\RestController;
 use ForumBundle\Entity\Post as ForumPost;
 use ForumBundle\Form\Type\PostType;
-use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Put;
-use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 class PostController extends RestController
 {
     /**
-     * @Get(name="get_forum_posts", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Get(name="get_forum_posts", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Returns all forum posts",
@@ -38,8 +35,9 @@ class PostController extends RestController
     }
 
     /**
-     * @Get(name="get_forum_post", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Get(name="get_forum_post", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Gets a forum post by it's id",
@@ -69,8 +67,9 @@ class PostController extends RestController
     }
 
     /**
-     * @Post(name="post_forum_post", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Post(name="post_forum_post", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=201,
      *     description="Creates a new forum post"
@@ -83,8 +82,9 @@ class PostController extends RestController
     }
 
     /**
-     * @Put(name="put_forum_post", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Put(name="put_forum_post", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=204,
      *     description="Updates a forum post"
@@ -112,8 +112,9 @@ class PostController extends RestController
     }
 
     /**
-     * @Delete(name="delete_forum_post", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Delete(name="delete_forum_post", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=204,
      *     description="Deletes a forum post"

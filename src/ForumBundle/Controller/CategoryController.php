@@ -5,12 +5,7 @@ namespace ForumBundle\Controller;
 use AppBundle\Controller\RestController;
 use ForumBundle\Entity\Category;
 use ForumBundle\Form\Type\CategoryType;
-use FOS\RestBundle\Controller\Annotations\Delete;
-use FOS\RestBundle\Controller\Annotations\Get;
-use FOS\RestBundle\Controller\Annotations\Post;
-use FOS\RestBundle\Controller\Annotations\Put;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
-use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
@@ -19,21 +14,21 @@ use Symfony\Component\HttpFoundation\Request;
 class CategoryController extends RestController
 {
     /**
-     * @Get(name="get_forum_categories", options={ "method_prefix" = false })
-     * @View
-     * @QueryParam(
+     * @Rest\Get(name="get_forum_categories", options={ "method_prefix" = false })
+     * @Rest\View
+     * @Rest\QueryParam(
      *     name="order",
      *     requirements="asc|desc",
      *     default="asc",
      *     description="Sort order (asc or desc)"
      * )
-     * @QueryParam(
+     * @Rest\QueryParam(
      *     name="page",
      *     requirements="\d+",
      *     default="1",
      *     description="The current page"
      * )
-     * @QueryParam(
+     * @Rest\QueryParam(
      *     name="per_page",
      *     requirements="\d+",
      *     default="15",
@@ -63,8 +58,9 @@ class CategoryController extends RestController
     }
 
     /**
-     * @Get(name="get_forum_category", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Get(name="get_forum_category", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Gets a forum category by it's id",
@@ -94,8 +90,9 @@ class CategoryController extends RestController
     }
 
     /**
-     * @Post(name="post_forum_category", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Post(name="post_forum_category", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=201,
      *     description="Creates a new forum category"
@@ -108,8 +105,9 @@ class CategoryController extends RestController
     }
 
     /**
-     * @Put(name="put_forum_category", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Put(name="put_forum_category", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=204,
      *     description="Updates a forum category"
@@ -137,8 +135,9 @@ class CategoryController extends RestController
     }
 
     /**
-     * @Delete(name="delete_forum_category", options={ "method_prefix" = false })
-     * @View
+     * @Rest\Delete(name="delete_forum_category", options={ "method_prefix" = false })
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=204,
      *     description="Deletes a forum category"
