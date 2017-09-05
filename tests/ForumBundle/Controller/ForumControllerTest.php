@@ -20,6 +20,7 @@ class ForumControllerTest extends WebTestCase
     {
         parent::setUp();
 
+        $this->emptyTable('forum_topic');
         $this->emptyTable('forum_forum');
         $this->emptyTable('forum_category');
 
@@ -83,9 +84,10 @@ class ForumControllerTest extends WebTestCase
 
         // Test created Category
         $client->request('GET', $response->headers->get('Location'));
+        $response = $client->getResponse();
 
-        $this->assertTrue($client->getResponse()->isOk());
-        $this->assertContains('"title":"Forum title"', $client->getResponse()->getContent());
+        $this->assertIsOk($response);
+        $this->assertContains('"title":"Forum title"', $response->getContent());
     }
 
     /**
@@ -173,6 +175,7 @@ class ForumControllerTest extends WebTestCase
         // Test Response
         $this->assertIsNoContent($response);
 
+        // Test deleted Forum
         $this->em->clear();
         $deletedForum = $this->em->getRepository('ForumBundle:Forum')->find($forumToDelete->getId());
 
@@ -234,7 +237,7 @@ class ForumControllerTest extends WebTestCase
 
     public function wrongForumProvider()
     {
-        $category = '{
+        $forum = '{
             "forum_forum": {
                 "title": "%s",
                 "description": "%s",
@@ -245,11 +248,11 @@ class ForumControllerTest extends WebTestCase
         $longString = str_repeat('a', 101);
 
         return [
-            [sprintf($category, $longString, 'aaaa', 50)],
-            [sprintf($category, $longString, '', 50)],
-            [sprintf($category, 'aaaa', $longString, 50)],
-            [sprintf($category, '', $longString, 50)],
-            [sprintf($category, 'aaaa', 'aaaa', 50)]
+            [sprintf($forum, $longString, 'aaaa', 50)],
+            [sprintf($forum, $longString, '', 50)],
+            [sprintf($forum, 'aaaa', $longString, 50)],
+            [sprintf($forum, '', $longString, 50)],
+            [sprintf($forum, 'aaaa', 'aaaa', 50)]
         ];
     }
 }

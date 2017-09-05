@@ -14,6 +14,7 @@ class CategoryControllerTest extends WebTestCase
     {
         parent::setUp();
 
+        $this->emptyTable('forum_topic');
         $this->emptyTable('forum_forum');
         $this->emptyTable('forum_category');
     }
@@ -74,9 +75,10 @@ class CategoryControllerTest extends WebTestCase
 
         // Test created Category
         $client->request('GET', $response->headers->get('Location'));
+        $response = $client->getResponse();
 
-        $this->assertTrue($client->getResponse()->isOk());
-        $this->assertContains('"title":"Category title"', $client->getResponse()->getContent());
+        $this->assertIsOk($response);
+        $this->assertContains('"title":"Category title"', $response->getContent());
     }
 
     /**
@@ -163,6 +165,7 @@ class CategoryControllerTest extends WebTestCase
         // Test Response
         $this->assertIsNoContent($response);
 
+        // Test deleted Category
         $this->em->clear();
         $deletedCategory = $this->em->getRepository('ForumBundle:Category')->find($categoryToDelete->getId());
 
