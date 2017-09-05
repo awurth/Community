@@ -87,7 +87,7 @@ class Topic
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="ForumBundle\Entity\Post", mappedBy="topic")
+     * @ORM\OneToMany(targetEntity="ForumBundle\Entity\Post", cascade={"remove"}, mappedBy="topic")
      *
      * @JMS\Exclude
      */

@@ -69,7 +69,7 @@ class Category
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="ForumBundle\Entity\Forum", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="ForumBundle\Entity\Forum", cascade={"remove"}, mappedBy="category")
      *
      * @JMS\Exclude
      */
