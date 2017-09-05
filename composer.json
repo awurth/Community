@@ -1,5 +1,6 @@
 {
     "name": "awurth/community",
+    "description": "Community website",
     "license": "MIT",
     "type": "project",
     "autoload": {
