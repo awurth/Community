@@ -7,5 +7,8 @@ app_homepage:
     defaults: { _controller: AppBundle:Default:index }
     methods:  [GET]
 
+user:
+    resource: "@UserBundle/Resources/config/routing.yml"
+
 fos_user:
     resource: "@FOSUserBundle/Resources/config/routing/security.xml"

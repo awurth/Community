@@ -5,12 +5,21 @@ namespace ForumBundle\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use UserBundle\Entity\User;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="forum_post")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "get_forum_post",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class Post
 {

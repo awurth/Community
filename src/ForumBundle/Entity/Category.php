@@ -6,11 +6,21 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="forum_category")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "get_forum_category",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class Category
 {
@@ -60,6 +70,8 @@ class Category
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="ForumBundle\Entity\Forum", mappedBy="category")
+     *
+     * @JMS\Exclude
      */
     protected $forums;
 

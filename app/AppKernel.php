@@ -20,6 +20,7 @@ class AppKernel extends Kernel
             // Community Bundles
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
+            new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new FOS\RestBundle\FOSRestBundle(),

@@ -4,12 +4,21 @@ namespace UserBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use FOS\UserBundle\Model\User as BaseUser;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="`user`")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "get_user",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class User extends BaseUser
 {

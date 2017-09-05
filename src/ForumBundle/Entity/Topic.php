@@ -5,12 +5,22 @@ namespace ForumBundle\Entity;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="forum_topic")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "get_forum_topic",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class Topic
 {
@@ -68,6 +78,8 @@ class Topic
      * @var ArrayCollection
      *
      * @ORM\OneToMany(targetEntity="ForumBundle\Entity\Post", mappedBy="topic")
+     *
+     * @JMS\Exclude
      */
     protected $posts;
 
