@@ -215,9 +215,7 @@ class CategoryControllerTest extends WebTestCase
             [sprintf($category, $longString, 'aaaa')],
             [sprintf($category, $longString, '')],
             [sprintf($category, 'aaaa', $longString)],
-            [sprintf($category, '', $longString)],
-            [sprintf($category, '', '')],
-            [sprintf($category, $longString, $longString)]
+            [sprintf($category, '', $longString)]
         ];
     }
 }
