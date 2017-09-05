@@ -37,7 +37,7 @@ class Category
      * @var string
      *
      * @Assert\NotBlank
-     * @Assert\Length(max="100")
+     * @Assert\Length(max=100)
      * @ORM\Column(name="title", type="string", length=100)
      */
     protected $title;
@@ -45,7 +45,7 @@ class Category
     /**
      * @var string
      *
-     * @Assert\Length(max="100")
+     * @Assert\Length(max=100)
      * @ORM\Column(name="description", type="string", length=100, nullable=true)
      */
     protected $description;

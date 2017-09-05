@@ -74,6 +74,7 @@ class Post
     /**
      * @var User
      *
+     * @Assert\NotNull
      * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      *

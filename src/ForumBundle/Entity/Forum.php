@@ -44,7 +44,7 @@ class Forum
      * @var string
      *
      * @Assert\NotBlank
-     * @Assert\Length(max="100")
+     * @Assert\Length(max=100)
      * @ORM\Column(name="title", type="string", length=100)
      */
     protected $title;
@@ -52,7 +52,7 @@ class Forum
     /**
      * @var string
      *
-     * @Assert\Length(max="100")
+     * @Assert\Length(max=100)
      * @ORM\Column(name="description", type="string", length=100, nullable=true)
      */
     protected $description;
@@ -76,7 +76,8 @@ class Forum
     /**
      * @var Category
      *
-     * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Category", inversedBy="forums")
+     * @Assert\NotNull
+     * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Category", cascade={"persist"}, inversedBy="forums")
      * @ORM\JoinColumn(nullable=false)
      *
      * @JMS\Exclude
