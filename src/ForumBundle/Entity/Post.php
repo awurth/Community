@@ -59,7 +59,7 @@ class Post
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", inversedBy="posts")
+     * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $author;
