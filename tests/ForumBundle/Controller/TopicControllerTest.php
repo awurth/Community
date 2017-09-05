@@ -237,6 +237,15 @@ class TopicControllerTest extends WebTestCase
         return $forum;
     }
 
+    /**
+     * Creates a new Topic.
+     *
+     * @param Forum  $forum
+     * @param string $title
+     * @param string $description
+     *
+     * @return Topic
+     */
     public function createTopic(Forum $forum, $title = null, $description = null)
     {
         $topic = new Topic();
