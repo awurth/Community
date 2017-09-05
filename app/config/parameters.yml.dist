@@ -18,4 +18,6 @@ parameters:
     mailer_password: ~
 
     # A secret key that's used to generate certain security-related tokens
-    secret: ThisTokenIsNotSoSecretChangeIt
+    secret: cf6f09548b35f86080e963162fa0e3628b709c4f
+
+    session_name: SESSIONNAME
