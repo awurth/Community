@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use UserBundle\Entity\User;
 
 class WebTestCase extends BaseWebTestCase
 {
@@ -136,6 +137,23 @@ class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * Creates a new User.
+     *
+     * @param string $username
+     * @param string $password
+     * @param string $email
+     * @param bool   $admin
+     *
+     * @return User
+     */
+    public function createUser($username, $password, $email, $admin = false)
+    {
+        $manipulator = $this->container->get('fos_user.util.user_manipulator');
+
+        return $manipulator->create($username, $password, $email, true, $admin);
+    }
+
+    /**
      * Deletes all rows of a table.
      *
      * @param string $name
@@ -143,6 +161,42 @@ class WebTestCase extends BaseWebTestCase
     public function emptyTable($name)
     {
         $this->em->getConnection()->executeUpdate('DELETE FROM ' . $name);
+    }
+
+    /**
+     * Log in with username and password and get an OAuth Access Token.
+     *
+     * @param Client $client
+     * @param string $username
+     * @param string $password
+     * @param ClientInterface|null $oauthClient
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function logIn(Client $client, $username, $password, ClientInterface $oauthClient = null)
+    {
+        if (null === $oauthClient) {
+            $oauthClient = $this->createOAuthClient();
+        }
+
+        $content = '{
+            "grant_type": "password",
+            "client_id": "' . $oauthClient->getPublicId() . '",
+            "client_secret": "' . $oauthClient->getSecret() . '",
+            "username": "' . $username . '",
+            "password": "' . $password . '"
+        }';
+
+        $response = $this->post($client, '/oauth/v2/token', $content);
+
+        $data = json_decode($response->getContent(), true);
+        if (!isset($data['access_token'])) {
+            throw new \Exception('Invalid response');
+        }
+
+        return $data['access_token'];
     }
 
     /**
