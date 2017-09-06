@@ -78,6 +78,8 @@ class ForumController extends RestController
      */
     public function postForumAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->processForm(new Forum(), $request, ForumType::class, 'get_forum_forum');
     }
 
@@ -100,6 +102,8 @@ class ForumController extends RestController
      */
     public function putForumAction($id, Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $em = $this->getDoctrine()->getManager();
 
         $forum = $em->getRepository('ForumBundle:Forum')->find($id);
@@ -130,6 +134,8 @@ class ForumController extends RestController
      */
     public function deleteForumAction($id)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $em = $this->getDoctrine()->getManager();
 
         $forum = $em->getRepository('ForumBundle:Forum')->find($id);

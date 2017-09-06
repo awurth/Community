@@ -78,6 +78,8 @@ class TopicController extends RestController
      */
     public function postTopicAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         return $this->processForm(new Topic(), $request, TopicType::class, 'get_forum_topic');
     }
 
@@ -100,6 +102,8 @@ class TopicController extends RestController
      */
     public function putTopicAction($id, Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $em = $this->getDoctrine()->getManager();
 
         $topic = $em->getRepository('ForumBundle:Topic')->find($id);
@@ -130,6 +134,8 @@ class TopicController extends RestController
      */
     public function deleteTopicAction($id)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $em = $this->getDoctrine()->getManager();
 
         $topic = $em->getRepository('ForumBundle:Topic')->find($id);

@@ -101,6 +101,8 @@ class CategoryController extends RestController
      */
     public function postCategoryAction(Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->processForm(new Category(), $request, CategoryType::class, 'get_forum_category');
     }
 
@@ -123,6 +125,8 @@ class CategoryController extends RestController
      */
     public function putCategoryAction($id, Request $request)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $em = $this->getDoctrine()->getManager();
 
         $category = $em->getRepository('ForumBundle:Category')->find($id);
@@ -153,6 +157,8 @@ class CategoryController extends RestController
      */
     public function deleteCategoryAction($id)
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $em = $this->getDoctrine()->getManager();
 
         $category = $em->getRepository('ForumBundle:Category')->find($id);
