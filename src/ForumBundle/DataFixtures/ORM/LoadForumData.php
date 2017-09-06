@@ -16,10 +16,10 @@ class LoadForumData extends AbstractFixture implements OrderedFixtureInterface
     public function load(ObjectManager $manager)
     {
         for ($i = 1; $i <= 3; $i++) {
-            for ($j = 1; $j <= 3; $j++) {
-                /** @var Category $category */
-                $category = $this->getReference("category-$i");
+            /** @var Category $category */
+            $category = $this->getReference("category-$i");
 
+            for ($j = 1; $j <= 3; $j++) {
                 $forum = new Forum();
                 $forum->setTitle("Category $i - Forum $j");
                 $forum->setDescription("This is the forum $j of category $i");

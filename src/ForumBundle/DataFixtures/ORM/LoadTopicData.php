@@ -17,10 +17,10 @@ class LoadTopicData extends AbstractFixture implements OrderedFixtureInterface
     {
         for ($i = 1; $i <= 3; $i++) {
             for ($j = 1; $j <= 3; $j++) {
-                for ($k = 1; $k <= 3; $k++) {
-                    /** @var Forum $forum */
-                    $forum = $this->getReference("category-$i-forum-$j");
+                /** @var Forum $forum */
+                $forum = $this->getReference("category-$i-forum-$j");
 
+                for ($k = 1; $k <= 3; $k++) {
                     $topic = new Topic();
                     $topic->setTitle("Category $i - Forum $j - Topic $k");
                     $topic->setDescription("This is the topic $k of forum $j of category $i");
