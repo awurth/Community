@@ -81,7 +81,7 @@ class User extends BaseUser
      *
      * @return $this
      */
-    public function setUpdateAt(DateTime $updatedAt)
+    public function setUpdatedAt(DateTime $updatedAt)
     {
         $this->updatedAt = $updatedAt;
 
