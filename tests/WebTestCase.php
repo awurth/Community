@@ -120,6 +120,16 @@ class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * Creates a new User with SUPER_ADMIN role.
+     *
+     * @return User
+     */
+    public function createAdmin()
+    {
+        return $this->createUser('admin', 'admin', 'admin@domain.com', true);
+    }
+
+    /**
      * Creates a new OAuth Client.
      *
      * @return ClientInterface|mixed
@@ -205,16 +215,23 @@ class WebTestCase extends BaseWebTestCase
      * @param Client $client
      * @param string $uri
      * @param string $content
+     * @param string $accessToken
      * @param array  $parameters
      * @param array  $files
      *
      * @return Response|null
      */
-    public function post(Client $client, $uri, $content, array $parameters = [], array $files = [])
+    public function post(Client $client, $uri, $content, $accessToken = null, array $parameters = [], array $files = [])
     {
-        $client->request('POST', $uri, $parameters, $files, [
+        $headers = [
             'CONTENT_TYPE' => 'application/json'
-        ], $content);
+        ];
+
+        if (null !== $accessToken) {
+            $headers['AUTHORIZATION'] = $accessToken;
+        }
+
+        $client->request('POST', $uri, $parameters, $files, $headers, $content);
 
         return $client->getResponse();
     }
