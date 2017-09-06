@@ -22,12 +22,14 @@ class AppKernel extends Kernel
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
+            new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new FOS\RestBundle\FOSRestBundle(),
 
             // App Bundles
             new AppBundle\AppBundle(),
             new ForumBundle\ForumBundle(),
+            new OAuthBundle\OAuthBundle(),
             new UserBundle\UserBundle(),
         ];
 

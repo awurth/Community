@@ -7,6 +7,7 @@
         "psr-4": {
             "AppBundle\\": "src/AppBundle",
             "ForumBundle\\": "src/ForumBundle",
+            "OAuthBundle\\": "src/OAuthBundle",
             "UserBundle\\": "src/UserBundle"
         },
         "classmap": [
@@ -26,6 +27,7 @@
         "php": ">=5.5.9",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/orm": "^2.5",
+        "friendsofsymfony/oauth-server-bundle": "dev-master",
         "friendsofsymfony/rest-bundle": "^2.2",
         "friendsofsymfony/user-bundle": "~2.0",
         "incenteev/composer-parameter-handler": "^2.0",
