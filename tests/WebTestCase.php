@@ -3,12 +3,19 @@
 namespace Tests;
 
 use Doctrine\ORM\EntityManager;
+use FOS\OAuthServerBundle\Model\ClientInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class WebTestCase extends BaseWebTestCase
 {
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
     /**
      * @var EntityManager
      */
@@ -21,9 +28,8 @@ class WebTestCase extends BaseWebTestCase
     {
         self::bootKernel();
 
-        $this->em = static::$kernel->getContainer()
-            ->get('doctrine')
-            ->getManager();
+        $this->container = static::$kernel->getContainer();
+        $this->em = $this->container->get('doctrine')->getManager();
     }
 
     /**
@@ -110,6 +116,23 @@ class WebTestCase extends BaseWebTestCase
         if ($checkContent) {
             $this->assertJson($response->getContent());
         }
+    }
+
+    /**
+     * Creates a new OAuth Client.
+     *
+     * @return ClientInterface|mixed
+     */
+    public function createOAuthClient()
+    {
+        $clientManager = $this->container->get('fos_oauth_server.client_manager.default');
+
+        $client = $clientManager->createClient();
+        $client->setAllowedGrantTypes(['password', 'refresh_token']);
+
+        $clientManager->updateClient($client);
+
+        return $client;
     }
 
     /**
