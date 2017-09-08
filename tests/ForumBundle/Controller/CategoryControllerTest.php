@@ -147,7 +147,7 @@ class CategoryControllerTest extends WebTestCase
             }
         }';
 
-        $categoryToUpdate = $this->createCategory();
+        $categoryToUpdate = $this->findFirst('ForumBundle:Category');
 
         $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $category);
 
@@ -165,7 +165,7 @@ class CategoryControllerTest extends WebTestCase
 
     public function testDeleteCategory()
     {
-        $categoryToDelete = $this->createCategory('Category to delete');
+        $categoryToDelete = $this->findFirst('ForumBundle:Category');
 
         $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/' . $categoryToDelete->getId());
 
