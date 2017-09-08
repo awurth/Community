@@ -4,19 +4,13 @@ namespace Tests;
 
 use Doctrine\ORM\EntityManager;
 use FOS\OAuthServerBundle\Model\ClientInterface;
+use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use UserBundle\Entity\User;
 
 class WebTestCase extends BaseWebTestCase
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
     /**
      * @var EntityManager
      */
@@ -27,10 +21,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function setUp()
     {
-        self::bootKernel();
-
-        $this->container = static::$kernel->getContainer();
-        $this->em = $this->container->get('doctrine')->getManager();
+        $this->em = $this->getContainer()->get('doctrine')->getManager();
     }
 
     /**
@@ -41,7 +32,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function assertEqualsJson($expected, $actual)
     {
-        $serializer = static::$kernel->getContainer()
+        $serializer = $this->getContainer()
             ->get('jms_serializer');
 
         $this->assertEquals($serializer->serialize($expected, 'json'), $actual);
@@ -72,6 +63,16 @@ class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * Asserts that the response status code is 403.
+     *
+     * @param Response $response
+     */
+    public function assertIsForbidden(Response $response)
+    {
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    /**
      * Asserts that the response status code is 204 (No Content).
      *
      * @param Response $response
@@ -92,7 +93,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function assertIsNotFound(Response $response)
     {
-        $this->assertTrue($response->isNotFound());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     /**
@@ -102,7 +103,17 @@ class WebTestCase extends BaseWebTestCase
      */
     public function assertIsOk(Response $response)
     {
-        $this->assertTrue($response->isOk());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    /**
+     * Asserts that the response status code is 401.
+     *
+     * @param Response $response
+     */
+    public function assertIsUnauthorized(Response $response)
+    {
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
     }
 
     /**
@@ -117,6 +128,21 @@ class WebTestCase extends BaseWebTestCase
         if ($checkContent) {
             $this->assertJson($response->getContent());
         }
+    }
+
+    /**
+     * Asserts that JSON response contains the right number of resources.
+     *
+     * @param Response $response
+     * @param int      $count
+     */
+    public function assertJsonResourcesCount(Response $response, $count)
+    {
+        $serializer = $this->getContainer()->get('jms_serializer');
+
+        $deserializedContent = $serializer->deserialize($response->getContent(), 'array', 'json');
+
+        $this->assertCount($count, $deserializedContent);
     }
 
     /**
@@ -136,7 +162,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function createOAuthClient()
     {
-        $clientManager = $this->container->get('fos_oauth_server.client_manager.default');
+        $clientManager = $this->getContainer()->get('fos_oauth_server.client_manager.default');
 
         $client = $clientManager->createClient();
         $client->setAllowedGrantTypes(['password', 'refresh_token']);
@@ -158,9 +184,26 @@ class WebTestCase extends BaseWebTestCase
      */
     public function createUser($username, $password, $email, $admin = false)
     {
-        $manipulator = $this->container->get('fos_user.util.user_manipulator');
+        $manipulator = $this->getContainer()->get('fos_user.util.user_manipulator');
 
         return $manipulator->create($username, $password, $email, true, $admin);
+    }
+
+    /**
+     * Sends a DELETE request.
+     *
+     * @param Client $client
+     * @param string $uri
+     * @param string $accessToken
+     * @param array  $headers
+     * @param array  $parameters
+     * @param array  $files
+     *
+     * @return Response|null
+     */
+    public function delete(Client $client, $uri, $accessToken = null, array $headers = [], array $parameters = [], array $files = [])
+    {
+        return $this->request($client, 'DELETE', $uri, '', $accessToken, $headers, $parameters, $files);
     }
 
     /**
@@ -171,6 +214,28 @@ class WebTestCase extends BaseWebTestCase
     public function emptyTable($name)
     {
         $this->em->getConnection()->executeUpdate('DELETE FROM ' . $name);
+    }
+
+    /**
+     * Sends a GET request.
+     *
+     * @param Client $client
+     * @param string $uri
+     * @param string $accessToken
+     * @param array  $headers
+     * @param array  $parameters
+     * @param array  $files
+     *
+     * @return Response|null
+     */
+    public function get(Client $client, $uri, $accessToken = null, array $headers = [], array $parameters = [], array $files = [])
+    {
+        return $this->request($client, 'GET', $uri, '', $accessToken, $headers, $parameters, $files);
+    }
+
+    public function loadFixture($bundle, $entityName)
+    {
+        $this->loadFixtures([$bundle . 'Bundle\DataFixtures\ORM\Load' . $entityName . 'Data']);
     }
 
     /**
@@ -216,24 +281,15 @@ class WebTestCase extends BaseWebTestCase
      * @param string $uri
      * @param string $content
      * @param string $accessToken
+     * @param array  $headers
      * @param array  $parameters
      * @param array  $files
      *
      * @return Response|null
      */
-    public function post(Client $client, $uri, $content, $accessToken = null, array $parameters = [], array $files = [])
+    public function post(Client $client, $uri, $content, $accessToken = null, array $headers = [], array $parameters = [], array $files = [])
     {
-        $headers = [
-            'CONTENT_TYPE' => 'application/json'
-        ];
-
-        if (null !== $accessToken) {
-            $headers['HTTP_AUTHORIZATION'] = 'Bearer '. $accessToken;
-        }
-
-        $client->request('POST', $uri, $parameters, $files, $headers, $content);
-
-        return $client->getResponse();
+        return $this->request($client, 'POST', $uri, $content, $accessToken, $headers, $parameters, $files);
     }
 
     /**
@@ -243,22 +299,42 @@ class WebTestCase extends BaseWebTestCase
      * @param string $uri
      * @param string $content
      * @param string $accessToken
+     * @param array  $headers
      * @param array  $parameters
      * @param array  $files
      *
      * @return Response|null
      */
-    public function put(Client $client, $uri, $content, $accessToken = null, array $parameters = [], array $files = [])
+    public function put(Client $client, $uri, $content, $accessToken = null, array $headers = [], array $parameters = [], array $files = [])
     {
-        $headers = [
-            'CONTENT_TYPE' => 'application/json'
-        ];
+        return $this->request($client, 'PUT', $uri, $content, $accessToken, $headers, $parameters, $files);
+    }
 
-        if (null !== $accessToken) {
-            $headers['HTTP_AUTHORIZATION'] = 'Bearer '. $accessToken;
+    /**
+     * Sends a request.
+     *
+     * @param Client $client
+     * @param string $method
+     * @param string $uri
+     * @param string $content
+     * @param string $accessToken
+     * @param array  $headers
+     * @param array  $parameters
+     * @param array  $files
+     *
+     * @return Response|null
+     */
+    public function request(Client $client, $method, $uri, $content, $accessToken = null, array $headers = [], array $parameters = [], array $files = [])
+    {
+        if (!isset($headers['CONTENT_TYPE'])) {
+            $headers['CONTENT_TYPE'] = 'application/json';
         }
 
-        $client->request('PUT', $uri, $parameters, $files, $headers, $content);
+        if (null !== $accessToken) {
+            $headers['HTTP_AUTHORIZATION'] = 'Bearer ' . $accessToken;
+        }
+
+        $client->request($method, $uri, $parameters, $files, $headers, $content);
 
         return $client->getResponse();
     }
