@@ -233,9 +233,28 @@ class WebTestCase extends BaseWebTestCase
         return $this->request($client, 'GET', $uri, '', $accessToken, $headers, $parameters, $files);
     }
 
+    /**
+     * Get a data fixture's fully qualified class name.
+     *
+     * @param string $bundle
+     * @param string $entityName
+     *
+     * @return string
+     */
+    public function getFixtureClass($bundle, $entityName)
+    {
+        return $bundle . 'Bundle\DataFixtures\ORM\Load' . $entityName . 'Data';
+    }
+
+    /**
+     * Loads a data fixture.
+     *
+     * @param string $bundle
+     * @param string $entityName
+     */
     public function loadFixture($bundle, $entityName)
     {
-        $this->loadFixtures([$bundle . 'Bundle\DataFixtures\ORM\Load' . $entityName . 'Data']);
+        $this->loadFixtures([$this->getFixtureClass($bundle, $entityName)]);
     }
 
     /**
