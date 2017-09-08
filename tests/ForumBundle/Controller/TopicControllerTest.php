@@ -128,7 +128,7 @@ class TopicControllerTest extends WebTestCase
         // Test Response
         $this->assertIsNoContent($response);
 
-        // Test updated Forum
+        // Test updated Topic
         $this->em->clear();
         $updatedTopic = $this->em->getRepository('ForumBundle:Topic')->find($topicToUpdate->getId());
 
@@ -184,14 +184,14 @@ class TopicControllerTest extends WebTestCase
         // Test Response
         $this->assertIsNoContent($response);
 
-        // Test deleted Forum
+        // Test deleted Topic
         $this->em->clear();
         $deletedTopic = $this->em->getRepository('ForumBundle:Topic')->find($topicToDelete->getId());
 
         $this->assertNull($deletedTopic);
     }
 
-    public function testDeleteForumBadRole()
+    public function testDeleteTopicBadRole()
     {
         $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
 
