@@ -55,11 +55,8 @@ class CategoryControllerTest extends WebTestCase
                 "description": "This is a category"
             }
         }';
-        
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
 
-        $client = $this->makeClient();
+        $client = $this->createAdminClient();
 
         $response = $this->post($client, self::RESOURCE_URI, $content);
 
@@ -80,10 +77,7 @@ class CategoryControllerTest extends WebTestCase
 
         $this->assertIsUnauthorized($response);
 
-        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
-        $this->loginAs($user, 'main');
-
-        $response = $this->post($this->makeClient(), self::RESOURCE_URI, '');
+        $response = $this->post($this->createLoggedClient(), self::RESOURCE_URI, '');
 
         $this->assertIsForbidden($response);
     }
@@ -97,10 +91,7 @@ class CategoryControllerTest extends WebTestCase
             }
         }';
 
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
-
-        $response = $this->post($this->makeClient(), self::RESOURCE_URI, $category);
+        $response = $this->post($this->createAdminClient(), self::RESOURCE_URI, $category);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -119,10 +110,7 @@ class CategoryControllerTest extends WebTestCase
             }
         }';
 
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
-
-        $client = $this->makeClient();
+        $client = $this->createAdminClient();
 
         $response = $this->put($client, self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $jsonCategory);
 
@@ -144,10 +132,7 @@ class CategoryControllerTest extends WebTestCase
         $this->assertIsUnauthorized($response);
         $this->assertJsonResponse($response);
 
-        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
-        $this->loginAs($user, 'main');
-
-        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/1', '');
+        $response = $this->put($this->createLoggedClient(), self::RESOURCE_URI . '/1', '');
 
         $this->assertIsForbidden($response);
         $this->assertJsonResponse($response);
@@ -164,10 +149,7 @@ class CategoryControllerTest extends WebTestCase
 
         $categoryToUpdate = $this->createCategory();
 
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
-
-        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $category);
+        $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $category);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -175,10 +157,7 @@ class CategoryControllerTest extends WebTestCase
 
     public function testPutCategoryNotFound()
     {
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
-
-        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/a', '');
+        $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/a', '');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -188,10 +167,7 @@ class CategoryControllerTest extends WebTestCase
     {
         $categoryToDelete = $this->createCategory('Category to delete');
 
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
-
-        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/' . $categoryToDelete->getId());
+        $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/' . $categoryToDelete->getId());
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -210,10 +186,7 @@ class CategoryControllerTest extends WebTestCase
         $this->assertIsUnauthorized($response);
         $this->assertJsonResponse($response);
 
-        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
-        $this->loginAs($user, 'main');
-
-        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
+        $response = $this->delete($this->createLoggedClient(), self::RESOURCE_URI . '/a');
 
         $this->assertIsForbidden($response);
         $this->assertJsonResponse($response);
@@ -221,10 +194,7 @@ class CategoryControllerTest extends WebTestCase
 
     public function testDeleteCategoryNotFound()
     {
-        $user = $this->createAdmin();
-        $this->loginAs($user, 'main');
-
-        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
+        $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/a');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);

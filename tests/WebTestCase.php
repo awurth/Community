@@ -156,6 +156,32 @@ class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * Returns a client logged in as an ADMIN.
+     *
+     * @return Client
+     */
+    public function createAdminClient()
+    {
+        $this->loginAs($this->createAdmin(), 'main');
+
+        return $this->makeClient();
+    }
+
+    /**
+     * Returns a client logged in as a normal user.
+     *
+     * @return Client
+     */
+    public function createLoggedClient()
+    {
+        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
+
+        $this->loginAs($user, 'main');
+
+        return $this->makeClient();
+    }
+
+    /**
      * Creates a new OAuth Client.
      *
      * @return ClientInterface|mixed
