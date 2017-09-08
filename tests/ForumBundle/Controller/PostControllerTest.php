@@ -2,24 +2,19 @@
 
 namespace Tests\ForumBundle\Controller;
 
-use ForumBundle\Entity\Category;
-use ForumBundle\Entity\Forum;
 use ForumBundle\Entity\Post;
 use ForumBundle\Entity\Topic;
 use Tests\WebTestCase;
 use UserBundle\Entity\User;
 
-class PostController extends WebTestCase
+class PostControllerTest extends WebTestCase
 {
+    const RESOURCE_URI = '/forum/posts';
+
     /**
      * @var Topic
      */
     protected $topic;
-
-    /**
-     * @var User
-     */
-    protected $author;
 
     /**
      * {@inheritDoc}
@@ -28,88 +23,88 @@ class PostController extends WebTestCase
     {
         parent::setUp();
 
-        $this->emptyTable('forum_post');
-        $this->emptyTable('forum_topic');
-        $this->emptyTable('forum_forum');
-        $this->emptyTable('forum_category');
-        $this->emptyTable('user');
+        $this->loadFixtures([
+            $this->getFixtureClass('Forum', 'Category'),
+            $this->getFixtureClass('Forum', 'Forum'),
+            $this->getFixtureClass('Forum', 'Topic'),
+            $this->getFixtureClass('Forum', 'Post'),
+            $this->getFixtureClass('User', 'User')
+        ]);
 
-        $category = $this->createCategory();
-        $forum = $this->createForum($category);
-        $this->topic = $this->createTopic($forum);
-        $this->author = new User();
+        $this->topic = $this->findFirst('ForumBundle:Topic');
     }
 
     public function testGetPosts()
     {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/posts');
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI);
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
-        $this->assertEqualsJson([], $response->getContent());
-    }
-
-    public function testGetPostNotFound()
-    {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/posts/1');
-        $response = $client->getResponse();
-
-        $this->assertIsNotFound($response);
-        $this->assertJsonResponse($response);
+        $this->assertJsonResourcesCount($response, 81);
     }
 
     public function testGetPost()
     {
-        $post = $this->createPost($this->topic, $this->author);
+        $post = $this->findFirst('ForumBundle:Post');
 
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/posts/' . $post->getId());
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $post->getId());
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
         $this->assertEqualsJson($post, $response->getContent());
     }
 
+    public function testGetPostNotFound()
+    {
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
+    }
+
     public function testPostPost()
     {
-        $content = '{
+        $topic = '{
             "forum_post": {
                 "content": "This is a post",
                 "topic": ' . $this->topic->getId() . '
             }
         }';
 
-        $client = static::createClient();
+        $client = $this->makeClient();
 
-        $response = $this->post($client, '/forum/posts', $content);
+        $token = $this->logIn($client, 'awurth', 'awurth');
+
+        $response = $this->post($client, self::RESOURCE_URI, $topic, $token);
 
         // Test Response
         $this->assertIsCreated($response);
         $this->assertJsonResponse($response, false);
 
         // Test created Post
-        $client->request('GET', $response->headers->get('Location'));
-        $response = $client->getResponse();
+        $response = $this->get($client, $response->headers->get('Location'));
 
         $this->assertIsOk($response);
         $this->assertContains('"content":"This is a post"', $response->getContent());
     }
 
-    /**
-     * @dataProvider wrongPostProvider
-     */
-    public function testPostPostWithErrors($post)
+    public function testPostPostBadRole()
     {
-        $client = static::createClient();
+        $response = $this->post($this->makeClient(), self::RESOURCE_URI, '');
 
-        $response = $this->post($client, '/forum/posts', $post);
+        $this->assertIsUnauthorized($response);
+    }
+
+    public function testPostPostWithErrors()
+    {
+        $post = '{
+            "forum_post": {
+                "content": "",
+                "topic": ""
+            }
+        }';
+
+        $response = $this->post($this->createLoggedClient(), self::RESOURCE_URI, $post);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -117,22 +112,22 @@ class PostController extends WebTestCase
 
     public function testPutPost()
     {
-        $client = static::createClient();
+        $user = $this->em->getRepository('UserBundle:User')->findOneBy(['username' => 'awurth']);
 
-        $postToUpdate = $this->createPost($this->topic, $this->author, 'New post');
+        $postToUpdate = $this->createPost($this->topic, $user, 'New post');
 
-        $createdPost = $this->em->getRepository('ForumBundle:Post')->find($postToUpdate->getId());
-        $this->assertSame('New post', $createdPost->getContent());
-        $this->assertNull($createdPost->getUpdatedAt());
-
-        $updatedPost = '{
+        $jsonPost = '{
             "forum_post": {
                 "content": "This is an updated post",
                 "topic": ' . $this->topic->getId() . '
             }
         }';
 
-        $response = $this->put($client, '/forum/posts/' . $postToUpdate->getId(), $updatedPost);
+        $client = $this->makeClient();
+
+        $token = $this->logIn($client, 'awurth', 'awurth');
+
+        $response = $this->put($client, self::RESOURCE_URI . '/' . $postToUpdate->getId(), $jsonPost, $token);
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -145,16 +140,39 @@ class PostController extends WebTestCase
         $this->assertNotNull($updatedPost->getUpdatedAt());
     }
 
-    /**
-     * @dataProvider wrongPostProvider
-     */
-    public function testPutPostWithErrors($post)
+    public function testPutPostBadRole()
     {
-        $client = static::createClient();
+        $post = $this->findFirst('ForumBundle:Post');
 
-        $postToUpdate = $this->createPost($this->topic, $this->author);
+        // Not logged in
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/' . $post->getId(), '');
 
-        $response = $this->put($client, '/forum/posts/' . $postToUpdate->getId(), $post);
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
+
+        // Wrong user
+        $response = $this->put($this->createLoggedClient(), self::RESOURCE_URI . '/' . $post->getId(), '');
+
+        $this->assertIsForbidden($response);
+        $this->assertJsonResponse($response);
+    }
+
+    public function testPutPostWithErrors()
+    {
+        $post = '{
+            "forum_post": {
+                "content": "",
+                "topic": ""
+            }
+        }';
+
+        $postToUpdate = $this->findFirst('ForumBundle:Post');
+
+        $client = $this->makeClient();
+
+        $token = $this->logIn($client, 'awurth', 'awurth');
+
+        $response = $this->put($client, self::RESOURCE_URI . '/' . $postToUpdate->getId(), $post, $token);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -162,9 +180,7 @@ class PostController extends WebTestCase
 
     public function testPutPostNotFound()
     {
-        $client = static::createClient();
-
-        $response = $this->put($client, '/forum/posts/1', '');
+        $response = $this->put($this->createLoggedClient(), self::RESOURCE_URI . '/a', '');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -172,16 +188,13 @@ class PostController extends WebTestCase
 
     public function testDeletePost()
     {
-        $client = static::createClient();
+        $postToDelete = $this->findFirst('ForumBundle:Post');
 
-        $postToDelete = $this->createPost($this->topic, $this->author, 'Post to delete');
+        $client = $this->makeClient();
 
-        $createdPost = $this->em->getRepository('ForumBundle:Post')->find($postToDelete->getId());
-        $this->assertSame('Post to delete', $createdPost->getContent());
-        $this->assertNull($createdPost->getUpdatedAt());
+        $token = $this->logIn($client, 'awurth', 'awurth');
 
-        $client->request('DELETE', '/forum/posts/' . $postToDelete->getId());
-        $response = $client->getResponse();
+        $response = $this->delete($client, self::RESOURCE_URI . '/' . $postToDelete->getId(), $token);
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -193,79 +206,29 @@ class PostController extends WebTestCase
         $this->assertNull($deletedPost);
     }
 
-    public function testDeletePostNotFound()
+    public function testDeletePostBadRole()
     {
-        $client = static::createClient();
+        $post = $this->findFirst('ForumBundle:Post');
 
-        $client->request('DELETE', '/forum/posts/1');
-        $response = $client->getResponse();
+        // Not logged in
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/' . $post->getId());
 
-        $this->assertIsNotFound($response);
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
+
+        // Wrong user
+        $response = $this->delete($this->createLoggedClient(), self::RESOURCE_URI . '/' . $post->getId());
+
+        $this->assertIsForbidden($response);
         $this->assertJsonResponse($response);
     }
 
-    /**
-     * Creates a new Category.
-     *
-     * @param string $title
-     * @param string $description
-     *
-     * @return Category
-     */
-    public function createCategory($title = null, $description = null)
+    public function testDeletePostNotFound()
     {
-        $category = new Category();
-        $category->setTitle($title ? $title : 'Category title');
-        $category->setDescription($description ? $description : 'This is a category');
+        $response = $this->delete($this->createLoggedClient(), self::RESOURCE_URI . '/a');
 
-        $this->em->persist($category);
-        $this->em->flush();
-
-        return $category;
-    }
-
-    /**
-     * Creates a new Forum.
-     *
-     * @param Category $category
-     * @param string   $title
-     * @param string   $description
-     *
-     * @return Forum
-     */
-    public function createForum(Category $category, $title = null, $description = null)
-    {
-        $forum = new Forum();
-        $forum->setTitle($title ? $title : 'Forum title');
-        $forum->setDescription($description ? $description : 'This is a forum');
-        $forum->setCategory($category);
-
-        $this->em->persist($forum);
-        $this->em->flush();
-
-        return $forum;
-    }
-
-    /**
-     * Creates a new Topic.
-     *
-     * @param Forum  $forum
-     * @param string $title
-     * @param string $description
-     *
-     * @return Topic
-     */
-    public function createTopic(Forum $forum, $title = null, $description = null)
-    {
-        $topic = new Topic();
-        $topic->setTitle($title ? $title : 'Topic title');
-        $topic->setDescription($description ? $description : 'This is a topic');
-        $topic->setForum($forum);
-
-        $this->em->persist($topic);
-        $this->em->flush();
-
-        return $topic;
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
     }
 
     /**
@@ -288,22 +251,5 @@ class PostController extends WebTestCase
         $this->em->flush();
 
         return $post;
-    }
-
-    public function wrongPostProvider()
-    {
-        $post = '{
-            "forum_post": {
-                "title": "%s",
-                "description": "%s",
-                "topic": %s
-            }
-        }';
-
-        return [
-            [sprintf($post, '', 'aaaa', 50)],
-            [sprintf($post, 'aaaa', '', 50)],
-            [sprintf($post, 'aaaa', 'aaaa', 50)]
-        ];
     }
 }
