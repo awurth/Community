@@ -8,6 +8,8 @@ use Tests\WebTestCase;
 
 class ForumControllerTest extends WebTestCase
 {
+    const RESOURCE_URI = '/forum/forums';
+
     /**
      * @var Category
      */
@@ -20,49 +22,40 @@ class ForumControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        $this->emptyTable('forum_post');
-        $this->emptyTable('forum_topic');
-        $this->emptyTable('forum_forum');
-        $this->emptyTable('forum_category');
+        $this->loadFixtures([
+            $this->getFixtureClass('Forum', 'Category'),
+            $this->getFixtureClass('Forum', 'Forum')
+        ]);
 
-        $this->category = $this->createCategory();
+        $this->category = $this->em->getRepository('ForumBundle:Category')->findOneBy([]);
     }
 
     public function testGetForums()
     {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/forums');
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI);
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
-        $this->assertEqualsJson([], $response->getContent());
-    }
-
-    public function testGetForumNotFound()
-    {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/forums/1');
-        $response = $client->getResponse();
-
-        $this->assertIsNotFound($response);
-        $this->assertJsonResponse($response);
+        $this->assertJsonResourcesCount($response, 9);
     }
 
     public function testGetForum()
     {
-        $forum = $this->createForum($this->category);
+        $forum = $this->findFirst('ForumBundle:Forum');
 
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/forums/' . $forum->getId());
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $forum->getId());
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
         $this->assertEqualsJson($forum, $response->getContent());
+    }
+
+    public function testGetForumNotFound()
+    {
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
     }
 
     public function testPostForum()
@@ -75,30 +68,43 @@ class ForumControllerTest extends WebTestCase
             }
         }';
 
-        $client = static::createClient();
+        $client = $this->createAdminClient();
 
-        $response = $this->post($client, '/forum/forums', $content);
+        $response = $this->post($client, self::RESOURCE_URI, $content);
 
         // Test Response
         $this->assertIsCreated($response);
         $this->assertJsonResponse($response, false);
 
         // Test created Category
-        $client->request('GET', $response->headers->get('Location'));
-        $response = $client->getResponse();
+        $response = $this->get($client, $response->headers->get('Location'));
 
         $this->assertIsOk($response);
         $this->assertContains('"title":"Forum title"', $response->getContent());
     }
 
-    /**
-     * @dataProvider wrongForumProvider
-     */
-    public function testPostForumWithErrors($forum)
+    public function testPostForumBadRole()
     {
-        $client = static::createClient();
+        $response = $this->post($this->makeClient(), self::RESOURCE_URI, '');
 
-        $response = $this->post($client, '/forum/forums', $forum);
+        $this->assertIsUnauthorized($response);
+
+        $response = $this->post($this->createLoggedClient(), self::RESOURCE_URI, '');
+
+        $this->assertIsForbidden($response);
+    }
+
+    public function testPostForumWithErrors()
+    {
+        $forum = '{
+            "forum_forum": {
+                "title": "",
+                "description": "",
+                "category": ""
+            }
+        }';
+
+        $response = $this->post($this->createAdminClient(), self::RESOURCE_URI, $forum);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -106,15 +112,11 @@ class ForumControllerTest extends WebTestCase
 
     public function testPutForum()
     {
-        $client = static::createClient();
-
         $forumToUpdate = $this->createForum($this->category, 'New forum');
 
-        $createdForum = $this->em->getRepository('ForumBundle:Forum')->find($forumToUpdate->getId());
-        $this->assertSame('New forum', $createdForum->getTitle());
-        $this->assertNull($createdForum->getUpdatedAt());
+        $this->assertNull($forumToUpdate->getUpdatedAt());
 
-        $updatedForum = '{
+        $jsonForum = '{
             "forum_forum": {
                 "title": "Updated forum",
                 "description": "This is an updated forum",
@@ -122,7 +124,9 @@ class ForumControllerTest extends WebTestCase
             }
         }';
 
-        $response = $this->put($client, '/forum/forums/' . $forumToUpdate->getId(), $updatedForum);
+        $client = $this->createAdminClient();
+
+        $response = $this->put($client, self::RESOURCE_URI . '/' . $forumToUpdate->getId(), $jsonForum);
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -135,16 +139,32 @@ class ForumControllerTest extends WebTestCase
         $this->assertNotNull($updatedForum->getUpdatedAt());
     }
 
-    /**
-     * @dataProvider wrongForumProvider
-     */
-    public function testPutForumWithErrors($forum)
+    public function testPutForumBadRole()
     {
-        $client = static::createClient();
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/1', '');
 
-        $forumToUpdate = $this->createForum($this->category);
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
 
-        $response = $this->put($client, '/forum/forums/' . $forumToUpdate->getId(), $forum);
+        $response = $this->put($this->createLoggedClient(), self::RESOURCE_URI . '/1', '');
+
+        $this->assertIsForbidden($response);
+        $this->assertJsonResponse($response);
+    }
+
+    public function testPutForumWithErrors()
+    {
+        $forum = '{
+            "forum_forum": {
+                "title": "",
+                "description": "",
+                "category": ""
+            }
+        }';
+
+        $forumToUpdate = $this->findFirst('ForumBundle:Forum');
+
+        $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/' . $forumToUpdate->getId(), $forum);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -152,9 +172,7 @@ class ForumControllerTest extends WebTestCase
 
     public function testPutForumNotFound()
     {
-        $client = static::createClient();
-
-        $response = $this->put($client, '/forum/forums/1', '');
+        $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/a', '');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -162,16 +180,9 @@ class ForumControllerTest extends WebTestCase
 
     public function testDeleteForum()
     {
-        $client = static::createClient();
+        $forumToDelete = $this->findFirst('ForumBundle:Forum');
 
-        $forumToDelete = $this->createForum($this->category, 'Forum to delete');
-
-        $createdForum = $this->em->getRepository('ForumBundle:Forum')->find($forumToDelete->getId());
-        $this->assertSame('Forum to delete', $createdForum->getTitle());
-        $this->assertNull($createdForum->getUpdatedAt());
-
-        $client->request('DELETE', '/forum/forums/' . $forumToDelete->getId());
-        $response = $client->getResponse();
+        $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/' . $forumToDelete->getId());
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -183,35 +194,25 @@ class ForumControllerTest extends WebTestCase
         $this->assertNull($deletedForum);
     }
 
-    public function testDeleteForumNotFound()
+    public function testDeleteForumBadRole()
     {
-        $client = static::createClient();
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
 
-        $client->request('DELETE', '/forum/forums/1');
-        $response = $client->getResponse();
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
 
-        $this->assertIsNotFound($response);
+        $response = $this->delete($this->createLoggedClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsForbidden($response);
         $this->assertJsonResponse($response);
     }
 
-    /**
-     * Creates a new Category.
-     *
-     * @param string $title
-     * @param string $description
-     *
-     * @return Category
-     */
-    public function createCategory($title = null, $description = null)
+    public function testDeleteForumNotFound()
     {
-        $category = new Category();
-        $category->setTitle($title ? $title : 'Category title');
-        $category->setDescription($description ? $description : 'This is a category');
+        $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/a');
 
-        $this->em->persist($category);
-        $this->em->flush();
-
-        return $category;
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
     }
 
     /**
@@ -234,26 +235,5 @@ class ForumControllerTest extends WebTestCase
         $this->em->flush();
 
         return $forum;
-    }
-
-    public function wrongForumProvider()
-    {
-        $forum = '{
-            "forum_forum": {
-                "title": "%s",
-                "description": "%s",
-                "category": %s
-            }
-        }';
-
-        $longString = str_repeat('a', 101);
-
-        return [
-            [sprintf($forum, $longString, 'aaaa', 50)],
-            [sprintf($forum, $longString, '', 50)],
-            [sprintf($forum, 'aaaa', $longString, 50)],
-            [sprintf($forum, '', $longString, 50)],
-            [sprintf($forum, 'aaaa', 'aaaa', 50)]
-        ];
     }
 }
