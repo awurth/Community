@@ -2,13 +2,14 @@
 
 namespace Tests\ForumBundle\Controller;
 
-use ForumBundle\Entity\Category;
 use ForumBundle\Entity\Forum;
 use ForumBundle\Entity\Topic;
 use Tests\WebTestCase;
 
 class TopicControllerTest extends WebTestCase
 {
+    const RESOURCE_URI = '/forum/topics';
+
     /**
      * @var Forum
      */
@@ -21,55 +22,46 @@ class TopicControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        $this->emptyTable('forum_post');
-        $this->emptyTable('forum_topic');
-        $this->emptyTable('forum_forum');
-        $this->emptyTable('forum_category');
+        $this->loadFixtures([
+            $this->getFixtureClass('Forum', 'Category'),
+            $this->getFixtureClass('Forum', 'Forum'),
+            $this->getFixtureClass('Forum', 'Topic')
+        ]);
 
-        $category = $this->createCategory();
-        $this->forum = $this->createForum($category);
+        $this->forum = $this->findFirst('ForumBundle:Forum');
     }
 
     public function testGetTopics()
     {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/topics');
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI);
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
-        $this->assertEqualsJson([], $response->getContent());
-    }
-
-    public function testGetTopicNotFound()
-    {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/topics/1');
-        $response = $client->getResponse();
-
-        $this->assertIsNotFound($response);
-        $this->assertJsonResponse($response);
+        $this->assertJsonResourcesCount($response, 27);
     }
 
     public function testGetTopic()
     {
-        $topic = $this->createTopic($this->forum);
+        $topic = $this->findFirst('ForumBundle:Topic');
 
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/topics/' . $topic->getId());
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $topic->getId());
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
         $this->assertEqualsJson($topic, $response->getContent());
     }
 
+    public function testGetTopicNotFound()
+    {
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
+    }
+
     public function testPostTopic()
     {
-        $content = '{
+        $topic = '{
             "forum_topic": {
                 "title": "Topic title",
                 "description": "This is a topic",
@@ -77,30 +69,39 @@ class TopicControllerTest extends WebTestCase
             }
         }';
 
-        $client = static::createClient();
+        $client = $this->createLoggedClient();
 
-        $response = $this->post($client, '/forum/topics', $content);
+        $response = $this->post($client, self::RESOURCE_URI, $topic);
 
         // Test Response
         $this->assertIsCreated($response);
         $this->assertJsonResponse($response, false);
 
         // Test created Topic
-        $client->request('GET', $response->headers->get('Location'));
-        $response = $client->getResponse();
+        $response = $this->get($client, $response->headers->get('Location'));
 
         $this->assertIsOk($response);
         $this->assertContains('"title":"Topic title"', $response->getContent());
     }
 
-    /**
-     * @dataProvider wrongTopicProvider
-     */
-    public function testPostTopicWithErrors($topic)
+    public function testPostTopicBadRole()
     {
-        $client = static::createClient();
+        $response = $this->post($this->makeClient(), self::RESOURCE_URI, '');
 
-        $response = $this->post($client, '/forum/topics', $topic);
+        $this->assertIsUnauthorized($response);
+    }
+
+    public function testPostTopicWithErrors()
+    {
+        $topic = '{
+            "forum_topic": {
+                "title": "",
+                "description": "",
+                "forum": ""
+            }
+        }';
+
+        $response = $this->post($this->createLoggedClient(), self::RESOURCE_URI, $topic);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -108,15 +109,11 @@ class TopicControllerTest extends WebTestCase
 
     public function testPutTopic()
     {
-        $client = static::createClient();
-
         $topicToUpdate = $this->createTopic($this->forum, 'New topic');
 
-        $createdTopic = $this->em->getRepository('ForumBundle:Topic')->find($topicToUpdate->getId());
-        $this->assertSame('New topic', $createdTopic->getTitle());
-        $this->assertNull($createdTopic->getUpdatedAt());
+        $this->assertNull($topicToUpdate->getUpdatedAt());
 
-        $updatedTopic = '{
+        $jsonTopic = '{
             "forum_topic": {
                 "title": "Updated topic",
                 "description": "This is an updated topic",
@@ -124,12 +121,14 @@ class TopicControllerTest extends WebTestCase
             }
         }';
 
-        $response = $this->put($client, '/forum/topics/' . $topicToUpdate->getId(), $updatedTopic);
+        $client = $this->createAdminClient();
+
+        $response = $this->put($client, self::RESOURCE_URI . '/' . $topicToUpdate->getId(), $jsonTopic);
 
         // Test Response
         $this->assertIsNoContent($response);
 
-        // Test updated Topic
+        // Test updated Forum
         $this->em->clear();
         $updatedTopic = $this->em->getRepository('ForumBundle:Topic')->find($topicToUpdate->getId());
 
@@ -137,16 +136,32 @@ class TopicControllerTest extends WebTestCase
         $this->assertNotNull($updatedTopic->getUpdatedAt());
     }
 
-    /**
-     * @dataProvider wrongTopicProvider
-     */
-    public function testPutTopicWithErrors($topic)
+    public function testPutTopicBadRole()
     {
-        $client = static::createClient();
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/1', '');
 
-        $topicToUpdate = $this->createTopic($this->forum);
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
 
-        $response = $this->put($client, '/forum/topics/' . $topicToUpdate->getId(), $topic);
+        $response = $this->put($this->createLoggedClient(), self::RESOURCE_URI . '/1', '');
+
+        $this->assertIsForbidden($response);
+        $this->assertJsonResponse($response);
+    }
+
+    public function testPutTopicWithErrors()
+    {
+        $topic = '{
+            "forum_topic": {
+                "title": "",
+                "description": "",
+                "forum": ""
+            }
+        }';
+
+        $topicToUpdate = $this->findFirst('ForumBundle:Topic');
+
+        $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/' . $topicToUpdate->getId(), $topic);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -154,9 +169,7 @@ class TopicControllerTest extends WebTestCase
 
     public function testPutTopicNotFound()
     {
-        $client = static::createClient();
-
-        $response = $this->put($client, '/forum/topics/1', '');
+        $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/a', '');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -164,78 +177,39 @@ class TopicControllerTest extends WebTestCase
 
     public function testDeleteTopic()
     {
-        $client = static::createClient();
+        $topicToDelete = $this->findFirst('ForumBundle:Topic');
 
-        $topicToDelete = $this->createTopic($this->forum, 'Topic to delete');
-
-        $createdTopic = $this->em->getRepository('ForumBundle:Topic')->find($topicToDelete->getId());
-        $this->assertSame('Topic to delete', $createdTopic->getTitle());
-        $this->assertNull($createdTopic->getUpdatedAt());
-
-        $client->request('DELETE', '/forum/topics/' . $topicToDelete->getId());
-        $response = $client->getResponse();
+        $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/' . $topicToDelete->getId());
 
         // Test Response
         $this->assertIsNoContent($response);
 
-        // Test deleted Topic
+        // Test deleted Forum
         $this->em->clear();
         $deletedTopic = $this->em->getRepository('ForumBundle:Topic')->find($topicToDelete->getId());
 
         $this->assertNull($deletedTopic);
     }
 
-    public function testDeleteTopicNotFound()
+    public function testDeleteForumBadRole()
     {
-        $client = static::createClient();
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
 
-        $client->request('DELETE', '/forum/topics/1');
-        $response = $client->getResponse();
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
 
-        $this->assertIsNotFound($response);
+        $response = $this->delete($this->createLoggedClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsForbidden($response);
         $this->assertJsonResponse($response);
     }
 
-    /**
-     * Creates a new Category.
-     *
-     * @param string $title
-     * @param string $description
-     *
-     * @return Category
-     */
-    public function createCategory($title = null, $description = null)
+    public function testDeleteTopicNotFound()
     {
-        $category = new Category();
-        $category->setTitle($title ? $title : 'Category title');
-        $category->setDescription($description ? $description : 'This is a category');
+        $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/a');
 
-        $this->em->persist($category);
-        $this->em->flush();
-
-        return $category;
-    }
-
-    /**
-     * Creates a new Forum.
-     *
-     * @param Category $category
-     * @param string   $title
-     * @param string   $description
-     *
-     * @return Forum
-     */
-    public function createForum(Category $category, $title = null, $description = null)
-    {
-        $forum = new Forum();
-        $forum->setTitle($title ? $title : 'Forum title');
-        $forum->setDescription($description ? $description : 'This is a forum');
-        $forum->setCategory($category);
-
-        $this->em->persist($forum);
-        $this->em->flush();
-
-        return $forum;
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
     }
 
     /**
@@ -258,26 +232,5 @@ class TopicControllerTest extends WebTestCase
         $this->em->flush();
 
         return $topic;
-    }
-
-    public function wrongTopicProvider()
-    {
-        $topic = '{
-            "forum_topic": {
-                "title": "%s",
-                "description": "%s",
-                "forum": %s
-            }
-        }';
-
-        $longString = str_repeat('a', 101);
-
-        return [
-            [sprintf($topic, $longString, 'aaaa', 50)],
-            [sprintf($topic, $longString, '', 50)],
-            [sprintf($topic, 'aaaa', $longString, 50)],
-            [sprintf($topic, '', $longString, 50)],
-            [sprintf($topic, 'aaaa', 'aaaa', 50)]
-        ];
     }
 }
