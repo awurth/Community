@@ -30,7 +30,7 @@ class CategoryControllerTest extends WebTestCase
 
     public function testGetCategory()
     {
-        $category = $this->em->getRepository('ForumBundle:Category')->findOneBy([]);
+        $category = $this->findFirst('ForumBundle:Category');
 
         $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $category->getId());
 

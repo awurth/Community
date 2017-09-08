@@ -217,6 +217,18 @@ class WebTestCase extends BaseWebTestCase
     }
 
     /**
+     * Finds the first entity in a table.
+     *
+     * @param string $entityName
+     *
+     * @return object|null
+     */
+    public function findFirst($entityName)
+    {
+        return $this->em->getRepository($entityName)->findOneBy([]);
+    }
+
+    /**
      * Sends a GET request.
      *
      * @param Client $client
