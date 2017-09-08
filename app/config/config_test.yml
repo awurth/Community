@@ -18,3 +18,5 @@ swiftmailer:
 doctrine:
     dbal:
         dbname: '%test_database_name%'
+
+liip_functional_test: ~
