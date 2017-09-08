@@ -228,7 +228,7 @@ class WebTestCase extends BaseWebTestCase
         ];
 
         if (null !== $accessToken) {
-            $headers['AUTHORIZATION'] = $accessToken;
+            $headers['HTTP_AUTHORIZATION'] = 'Bearer '. $accessToken;
         }
 
         $client->request('POST', $uri, $parameters, $files, $headers, $content);
@@ -242,16 +242,23 @@ class WebTestCase extends BaseWebTestCase
      * @param Client $client
      * @param string $uri
      * @param string $content
+     * @param string $accessToken
      * @param array  $parameters
      * @param array  $files
      *
      * @return Response|null
      */
-    public function put(Client $client, $uri, $content, array $parameters = [], array $files = [])
+    public function put(Client $client, $uri, $content, $accessToken = null, array $parameters = [], array $files = [])
     {
-        $client->request('PUT', $uri, $parameters, $files, [
+        $headers = [
             'CONTENT_TYPE' => 'application/json'
-        ], $content);
+        ];
+
+        if (null !== $accessToken) {
+            $headers['HTTP_AUTHORIZATION'] = 'Bearer '. $accessToken;
+        }
+
+        $client->request('PUT', $uri, $parameters, $files, $headers, $content);
 
         return $client->getResponse();
     }
