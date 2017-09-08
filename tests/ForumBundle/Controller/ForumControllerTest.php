@@ -27,7 +27,7 @@ class ForumControllerTest extends WebTestCase
             $this->getFixtureClass('Forum', 'Forum')
         ]);
 
-        $this->category = $this->em->getRepository('ForumBundle:Category')->findOneBy([]);
+        $this->category = $this->findFirst('ForumBundle:Category');
     }
 
     public function testGetForums()
