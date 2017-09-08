@@ -249,7 +249,7 @@ class Forum
      *
      * @return self
      */
-    public function setCategory(Category $category)
+    public function setCategory(Category $category = null)
     {
         $this->category = $category;
 
