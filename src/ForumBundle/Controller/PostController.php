@@ -9,7 +9,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
-use UserBundle\Entity\User;
 
 class PostController extends RestController
 {
@@ -81,7 +80,10 @@ class PostController extends RestController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        return $this->processForm(new ForumPost(), $request, PostType::class, 'get_forum_post');
+        $post = new ForumPost();
+        $post->setAuthor($this->getUser());
+
+        return $this->processForm($post, $request, PostType::class, 'get_forum_post');
     }
 
     /**
@@ -113,10 +115,7 @@ class PostController extends RestController
             throw $this->createNotFoundException();
         }
 
-        /** @var User $user */
-        $user = $this->getUser();
-
-        if (!$this->isGranted('ROLE_ADMIN') && $user !== $post->getAuthor()) {
+        if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $post->getAuthor()) {
             throw $this->createAccessDeniedException('This post does not belong to you');
         }
 
@@ -152,10 +151,7 @@ class PostController extends RestController
             throw $this->createNotFoundException();
         }
 
-        /** @var User $user */
-        $user = $this->getUser();
-
-        if (!$this->isGranted('ROLE_ADMIN') && $user !== $post->getAuthor()) {
+        if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $post->getAuthor()) {
             throw $this->createAccessDeniedException('This post does not belong to you');
         }
 
