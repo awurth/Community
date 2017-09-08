@@ -74,7 +74,6 @@ class Post
     /**
      * @var User
      *
-     * @Assert\NotNull
      * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      *
@@ -85,6 +84,7 @@ class Post
     /**
      * @var Topic
      *
+     * @Assert\NotNull
      * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Topic", cascade={"persist"}, inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
      *
@@ -181,7 +181,7 @@ class Post
      *
      * @return self
      */
-    public function setTopic(Topic $topic)
+    public function setTopic(Topic $topic = null)
     {
         $this->topic = $topic;
 
