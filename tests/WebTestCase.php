@@ -152,7 +152,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function createAdmin()
     {
-        return $this->createUser('admin', 'admin', 'admin@domain.com', true);
+        return $this->createUser('super-admin', 'admin', 'super-admin@domain.com', true);
     }
 
     /**
@@ -174,7 +174,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function createLoggedClient()
     {
-        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
+        $user = $this->createUser('user', 'user', 'user@domain.com');
 
         $this->loginAs($user, 'main');
 
