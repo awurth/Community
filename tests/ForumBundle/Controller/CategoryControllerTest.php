@@ -7,6 +7,8 @@ use Tests\WebTestCase;
 
 class CategoryControllerTest extends WebTestCase
 {
+    const RESOURCE_URI = '/forum/categories';
+
     /**
      * {@inheritDoc}
      */
@@ -14,47 +16,35 @@ class CategoryControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        $this->emptyTable('forum_post');
-        $this->emptyTable('forum_topic');
-        $this->emptyTable('forum_forum');
-        $this->emptyTable('forum_category');
+        $this->loadFixture('Forum', 'Category');
     }
 
     public function testGetCategories()
     {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/categories');
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI);
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
-        $this->assertEqualsJson([], $response->getContent());
-    }
-
-    public function testGetCategoryNotFound()
-    {
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/categories/1');
-        $response = $client->getResponse();
-
-        $this->assertIsNotFound($response);
-        $this->assertJsonResponse($response);
+        $this->assertJsonResourcesCount($response, 3);
     }
 
     public function testGetCategory()
     {
-        $category = $this->createCategory();
+        $category = $this->em->getRepository('ForumBundle:Category')->findOneBy([]);
 
-        $client = static::createClient();
-
-        $client->request('GET', '/forum/categories/' . $category->getId());
-        $response = $client->getResponse();
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $category->getId());
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
         $this->assertEqualsJson($category, $response->getContent());
+    }
+
+    public function testGetCategoryNotFound()
+    {
+        $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsNotFound($response);
+        $this->assertJsonResponse($response);
     }
 
     public function testPostCategory()
@@ -65,31 +55,52 @@ class CategoryControllerTest extends WebTestCase
                 "description": "This is a category"
             }
         }';
+        
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
 
-        $client = static::createClient();
+        $client = $this->makeClient();
 
-        $response = $this->post($client, '/forum/categories', $content);
+        $response = $this->post($client, self::RESOURCE_URI, $content);
 
         // Test Response
         $this->assertIsCreated($response);
         $this->assertJsonResponse($response, false);
 
         // Test created Category
-        $client->request('GET', $response->headers->get('Location'));
-        $response = $client->getResponse();
+        $response = $this->get($client, $response->headers->get('Location'));
 
         $this->assertIsOk($response);
         $this->assertContains('"title":"Category title"', $response->getContent());
     }
 
-    /**
-     * @dataProvider wrongCategoryProvider
-     */
-    public function testPostCategoryWithErrors($category)
+    public function testPostCategoryBadRole()
     {
-        $client = static::createClient();
+        $response = $this->post($this->makeClient(), self::RESOURCE_URI, '');
 
-        $response = $this->post($client, '/forum/categories', $category);
+        $this->assertIsUnauthorized($response);
+
+        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
+        $this->loginAs($user, 'main');
+
+        $response = $this->post($this->makeClient(), self::RESOURCE_URI, '');
+
+        $this->assertIsForbidden($response);
+    }
+
+    public function testPostCategoryWithErrors()
+    {
+        $category = '{
+            "forum_category": {
+                "title": "",
+                "description": ""
+            }
+        }';
+
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
+
+        $response = $this->post($this->makeClient(), self::RESOURCE_URI, $category);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -97,22 +108,23 @@ class CategoryControllerTest extends WebTestCase
 
     public function testPutCategory()
     {
-        $client = static::createClient();
-
         $categoryToUpdate = $this->createCategory('New category');
 
-        $createdCategory = $this->em->getRepository('ForumBundle:Category')->find($categoryToUpdate->getId());
-        $this->assertSame('New category', $createdCategory->getTitle());
-        $this->assertNull($createdCategory->getUpdatedAt());
+        $this->assertNull($categoryToUpdate->getUpdatedAt());
 
-        $updatedCategory = '{
+        $jsonCategory = '{
             "forum_category": {
                 "title": "Updated category",
                 "description": "This is an updated category"
             }
         }';
 
-        $response = $this->put($client, '/forum/categories/' . $categoryToUpdate->getId(), $updatedCategory);
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
+
+        $client = $this->makeClient();
+
+        $response = $this->put($client, self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $jsonCategory);
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -125,16 +137,37 @@ class CategoryControllerTest extends WebTestCase
         $this->assertNotNull($updatedCategory->getUpdatedAt());
     }
 
-    /**
-     * @dataProvider wrongCategoryProvider
-     */
-    public function testPutCategoryWithErrors($category)
+    public function testPutCategoryBadRole()
     {
-        $client = static::createClient();
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/1', '');
+
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
+
+        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
+        $this->loginAs($user, 'main');
+
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/1', '');
+
+        $this->assertIsForbidden($response);
+        $this->assertJsonResponse($response);
+    }
+
+    public function testPutCategoryWithErrors()
+    {
+        $category = '{
+            "forum_category": {
+                "title": "",
+                "description": ""
+            }
+        }';
 
         $categoryToUpdate = $this->createCategory();
 
-        $response = $this->put($client, '/forum/categories/' . $categoryToUpdate->getId(), $category);
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
+
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $category);
 
         $this->assertIsBadRequest($response);
         $this->assertJsonResponse($response);
@@ -142,9 +175,10 @@ class CategoryControllerTest extends WebTestCase
 
     public function testPutCategoryNotFound()
     {
-        $client = static::createClient();
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
 
-        $response = $this->put($client, '/forum/categories/1', '');
+        $response = $this->put($this->makeClient(), self::RESOURCE_URI . '/a', '');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -152,16 +186,12 @@ class CategoryControllerTest extends WebTestCase
 
     public function testDeleteCategory()
     {
-        $client = static::createClient();
-
         $categoryToDelete = $this->createCategory('Category to delete');
 
-        $createdCategory = $this->em->getRepository('ForumBundle:Category')->find($categoryToDelete->getId());
-        $this->assertSame('Category to delete', $createdCategory->getTitle());
-        $this->assertNull($createdCategory->getUpdatedAt());
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
 
-        $client->request('DELETE', '/forum/categories/' . $categoryToDelete->getId());
-        $response = $client->getResponse();
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/' . $categoryToDelete->getId());
 
         // Test Response
         $this->assertIsNoContent($response);
@@ -173,12 +203,28 @@ class CategoryControllerTest extends WebTestCase
         $this->assertNull($deletedCategory);
     }
 
+    public function testDeleteCategoryBadRole()
+    {
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsUnauthorized($response);
+        $this->assertJsonResponse($response);
+
+        $user = $this->createUser('awurth', 'awurth', 'awurth@domain.com');
+        $this->loginAs($user, 'main');
+
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
+
+        $this->assertIsForbidden($response);
+        $this->assertJsonResponse($response);
+    }
+
     public function testDeleteCategoryNotFound()
     {
-        $client = static::createClient();
+        $user = $this->createAdmin();
+        $this->loginAs($user, 'main');
 
-        $client->request('DELETE', '/forum/categories/1');
-        $response = $client->getResponse();
+        $response = $this->delete($this->makeClient(), self::RESOURCE_URI . '/a');
 
         $this->assertIsNotFound($response);
         $this->assertJsonResponse($response);
@@ -202,24 +248,5 @@ class CategoryControllerTest extends WebTestCase
         $this->em->flush();
 
         return $category;
-    }
-
-    public function wrongCategoryProvider()
-    {
-        $category = '{
-            "forum_category": {
-                "title": "%s",
-                "description": "%s"
-            }
-        }';
-
-        $longString = str_repeat('a', 101);
-
-        return [
-            [sprintf($category, $longString, 'aaaa')],
-            [sprintf($category, $longString, '')],
-            [sprintf($category, 'aaaa', $longString)],
-            [sprintf($category, '', $longString)]
-        ];
     }
 }
