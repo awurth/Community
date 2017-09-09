@@ -11,7 +11,7 @@ use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="ForumBundle\Repository\PostRepository")
  * @ORM\Table(name="forum_post")
  *
  * @Hateoas\Relation(
@@ -74,6 +74,7 @@ class Post
     /**
      * @var User
      *
+     * @Assert\NotNull
      * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      *

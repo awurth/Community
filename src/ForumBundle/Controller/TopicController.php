@@ -6,6 +6,7 @@ use AppBundle\Controller\RestController;
 use ForumBundle\Entity\Topic;
 use ForumBundle\Form\Type\TopicType;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,24 @@ class TopicController extends RestController
     /**
      * @Rest\Get(name="get_forum_topics", options={ "method_prefix" = false })
      * @Rest\View
+     * @Rest\QueryParam(
+     *     name="order",
+     *     requirements="asc|desc",
+     *     default="asc",
+     *     description="Sort order (asc or desc)"
+     * )
+     * @Rest\QueryParam(
+     *     name="page",
+     *     requirements="\d+",
+     *     default="1",
+     *     description="The current page"
+     * )
+     * @Rest\QueryParam(
+     *     name="per_page",
+     *     requirements="\d+",
+     *     default="15",
+     *     description="Max number of topics per page"
+     * )
      *
      * @SWG\Response(
      *     response=200,
@@ -26,12 +45,16 @@ class TopicController extends RestController
      * )
      * @SWG\Tag(name="forum")
      */
-    public function getTopicsAction()
+    public function getTopicsAction(ParamFetcher $paramFetcher)
     {
         return $this->getDoctrine()
             ->getManager()
             ->getRepository('ForumBundle:Topic')
-            ->findAll();
+            ->getCollection(
+                $paramFetcher->get('per_page'),
+                $paramFetcher->get('page'),
+                $paramFetcher->get('order')
+            );
     }
 
     /**
