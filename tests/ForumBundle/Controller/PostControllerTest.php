@@ -40,7 +40,7 @@ class PostControllerTest extends WebTestCase
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
-        $this->assertJsonResourcesCount($response, 81);
+        $this->assertJsonResourcesCount($response, 15);
     }
 
     public function testGetPost()

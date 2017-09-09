@@ -37,7 +37,7 @@ class TopicControllerTest extends WebTestCase
 
         $this->assertIsOk($response);
         $this->assertJsonResponse($response);
-        $this->assertJsonResourcesCount($response, 27);
+        $this->assertJsonResourcesCount($response, 15);
     }
 
     public function testGetTopic()
