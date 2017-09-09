@@ -21,6 +21,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         parameters = { "id" = "expr(object.getId())" }
  *     )
  * )
+ * @Hateoas\Relation(
+ *     "forums",
+ *     href = @Hateoas\Route(
+ *         "get_forum_category_forums",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class Category
 {
