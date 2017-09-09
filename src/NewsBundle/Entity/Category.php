@@ -5,11 +5,20 @@ namespace NewsBundle\Entity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="NewsBundle\Repository\CategoryRepository")
  * @ORM\Table(name="news_category")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "get_news_category",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class Category
 {

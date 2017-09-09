@@ -6,12 +6,29 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 use UserBundle\Entity\User;
 
 /**
  * @ORM\Entity(repositoryClass="NewsBundle\Repository\ArticleRepository")
  * @ORM\Table(name="news_article")
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "get_news_article",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "author",
+ *     href = @Hateoas\Route(
+ *         "get_user",
+ *         parameters = { "id" = "expr(object.getAuthor().getId())" }
+ *     )
+ * )
  */
 class Article
 {
@@ -94,6 +111,8 @@ class Article
      *
      * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @JMS\Exclude
      */
     protected $author;
 
