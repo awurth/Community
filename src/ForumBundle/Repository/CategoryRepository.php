@@ -2,25 +2,26 @@
 
 namespace ForumBundle\Repository;
 
-use Doctrine\ORM\EntityRepository;
+use AppBundle\Repository\PaginationRepository;
 
-class CategoryRepository extends EntityRepository
+class CategoryRepository extends PaginationRepository
 {
+    /**
+     * Gets a paginated list of Categories.
+     *
+     * @param int    $perPage
+     * @param int    $page
+     * @param string $order
+     *
+     * @return array
+     */
     public function getCollection($perPage = 15, $page = 1, $order = 'asc')
     {
-        if ($perPage < 1) {
-            $perPage = 15;
-        }
+        $qb = $this->createQueryBuilder('c')
+            ->orderBy('c.id', $order);
 
-        if ($page < 1) {
-            $page = 1;
-        }
+        $qb = $this->paginate($qb, $perPage, $page);
 
-        return $this->createQueryBuilder('c')
-            ->orderBy('c.id', $order)
-            ->setFirstResult($perPage * $page - $perPage)
-            ->setMaxResults($perPage)
-            ->getQuery()
-            ->getResult();
+        return $qb->getQuery()->getResult();
     }
 }
