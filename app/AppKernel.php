@@ -29,6 +29,7 @@ class AppKernel extends Kernel
             // App Bundles
             new AppBundle\AppBundle(),
             new ForumBundle\ForumBundle(),
+            new NewsBundle\NewsBundle(),
             new OAuthBundle\OAuthBundle(),
             new UserBundle\UserBundle(),
         ];

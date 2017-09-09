@@ -1,0 +1,3 @@
+news_article:
+    type:     rest
+    resource: NewsBundle\Controller\ArticleController
