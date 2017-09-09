@@ -27,9 +27,9 @@ class PostType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'data_class' => 'ForumBundle\Entity\Post'
-        ));
+        ]);
     }
 
     /**
