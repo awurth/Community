@@ -23,3 +23,8 @@ forum_forum_topic:
     type:     rest
     parent:   forum_forum
     resource: ForumBundle\Controller\ForumTopicController
+
+forum_topic_post:
+    type:     rest
+    parent:   forum_topic
+    resource: ForumBundle\Controller\TopicPostController
