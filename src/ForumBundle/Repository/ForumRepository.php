@@ -24,4 +24,16 @@ class ForumRepository extends PaginationRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getByCategory($categoryId, $perPage = 15, $page = 1, $order = 'asc')
+    {
+        $qb = $this->createQueryBuilder('f')
+            ->where('f.category = :categoryId')
+            ->setParameter('categoryId', $categoryId)
+            ->orderBy('f.id', $order);
+
+        $qb = $this->paginate($qb, $perPage, $page);
+
+        return $qb->getQuery()->getResult();
+    }
 }

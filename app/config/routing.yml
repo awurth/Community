@@ -1,6 +1,7 @@
 forum:
-    resource: "@ForumBundle/Resources/config/routing.yml"
+    type:     rest
     prefix:   /forum
+    resource: "@ForumBundle/Resources/config/routing.yml"
 
 app_homepage:
     path:     /
