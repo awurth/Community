@@ -42,6 +42,15 @@ class Category
     protected $name;
 
     /**
+     * @var string
+     *
+     * @Assert\Length(max=100)
+     *
+     * @ORM\Column(name="description", type="string", length=100, nullable=true)
+     */
+    protected $description;
+
+    /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
@@ -116,6 +125,30 @@ class Category
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Sets the description.
+     *
+     * @param string $description
+     *
+     * @return self
+     */
+    public function setDescription($description = null)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Gets the description.
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**
