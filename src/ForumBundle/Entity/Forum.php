@@ -45,6 +45,7 @@ class Forum
      *
      * @Assert\NotBlank
      * @Assert\Length(max=100)
+     *
      * @ORM\Column(name="title", type="string", length=100)
      */
     protected $title;
@@ -53,6 +54,7 @@ class Forum
      * @var string
      *
      * @Assert\Length(max=100)
+     *
      * @ORM\Column(name="description", type="string", length=100, nullable=true)
      */
     protected $description;
@@ -61,6 +63,7 @@ class Forum
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
@@ -69,6 +72,7 @@ class Forum
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="change", field={"title", "description"})
+     *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
@@ -77,6 +81,7 @@ class Forum
      * @var Category
      *
      * @Assert\NotNull
+     *
      * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Category", cascade={"persist"}, inversedBy="forums")
      * @ORM\JoinColumn(nullable=false)
      *
@@ -116,7 +121,7 @@ class Forum
      *
      * @param string $title
      *
-     * @return Forum
+     * @return self
      */
     public function setTitle($title)
     {
@@ -140,9 +145,9 @@ class Forum
      *
      * @param string $description
      *
-     * @return Forum
+     * @return self
      */
-    public function setDescription($description)
+    public function setDescription($description = null)
     {
         $this->description = $description;
 
@@ -164,7 +169,7 @@ class Forum
      *
      * @param DateTime $createdAt
      *
-     * @return Forum
+     * @return self
      */
     public function setCreatedAt(DateTime $createdAt)
     {
@@ -188,7 +193,7 @@ class Forum
      *
      * @param DateTime $updatedAt
      *
-     * @return Forum
+     * @return self
      */
     public function setUpdatedAt(DateTime $updatedAt)
     {
@@ -216,7 +221,7 @@ class Forum
      */
     public function addTopic(Topic $topic)
     {
-        $this->topics[] = $topic;
+        $this->topics->add($topic);
         $topic->setForum($this);
 
         return $this;
@@ -226,10 +231,14 @@ class Forum
      * Removes a topic.
      *
      * @param Topic $topic
+     *
+     * @return self
      */
     public function removeTopic(Topic $topic)
     {
         $this->topics->removeElement($topic);
+
+        return $this;
     }
 
     /**

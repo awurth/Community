@@ -51,6 +51,7 @@ class Post
      * @var string
      *
      * @Assert\NotBlank
+     *
      * @ORM\Column(name="content", type="text")
      */
     protected $content;
@@ -59,6 +60,7 @@ class Post
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
@@ -67,6 +69,7 @@ class Post
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="change", field={"content"})
+     *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
@@ -75,6 +78,7 @@ class Post
      * @var User
      *
      * @Assert\NotNull
+     *
      * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      *
@@ -86,6 +90,7 @@ class Post
      * @var Topic
      *
      * @Assert\NotNull
+     *
      * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Topic", cascade={"persist"}, inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
      *

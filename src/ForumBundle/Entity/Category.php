@@ -131,7 +131,7 @@ class Category
      *
      * @return self
      */
-    public function setDescription($description)
+    public function setDescription($description = null)
     {
         $this->description = $description;
 
@@ -205,7 +205,7 @@ class Category
      */
     public function addForum(Forum $forum)
     {
-        $this->forums[] = $forum;
+        $this->forums->add($forum);
         $forum->setCategory($this);
 
         return $this;
@@ -215,10 +215,14 @@ class Category
      * Removes a forum.
      *
      * @param Forum $forum
+     *
+     * @return self
      */
     public function removeTopic(Forum $forum)
     {
         $this->forums->removeElement($forum);
+
+        return $this;
     }
 
     /**

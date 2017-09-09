@@ -45,6 +45,7 @@ class Topic
      *
      * @Assert\NotBlank
      * @Assert\Length(max=100)
+     *
      * @ORM\Column(name="title", type="string", length=100)
      */
     protected $title;
@@ -53,6 +54,7 @@ class Topic
      * @var string
      *
      * @Assert\Length(max=100)
+     *
      * @ORM\Column(name="description", type="string", length=100, nullable=true)
      */
     protected $description;
@@ -61,6 +63,7 @@ class Topic
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
+     *
      * @ORM\Column(name="created_at", type="datetime")
      */
     protected $createdAt;
@@ -69,6 +72,7 @@ class Topic
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="change", field={"title", "description"})
+     *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
@@ -77,6 +81,7 @@ class Topic
      * @var Forum
      *
      * @Assert\NotNull
+     *
      * @ORM\ManyToOne(targetEntity="ForumBundle\Entity\Forum", cascade={"persist"}, inversedBy="topics")
      * @ORM\JoinColumn(nullable=false)
      *
@@ -142,7 +147,7 @@ class Topic
      *
      * @return self
      */
-    public function setDescription($description)
+    public function setDescription($description = null)
     {
         $this->description = $description;
 
@@ -240,7 +245,7 @@ class Topic
      */
     public function addPost(Post $post)
     {
-        $this->posts[] = $post;
+        $this->posts->add($post);
         $post->setTopic($this);
 
         return $this;
@@ -250,10 +255,14 @@ class Topic
      * Removes a post.
      *
      * @param Post $post
+     *
+     * @return self
      */
     public function removePost(Post $post)
     {
         $this->posts->removeElement($post);
+
+        return $this;
     }
 
     /**
