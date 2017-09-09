@@ -1,6 +1,6 @@
 news:
     type:     rest
-    prefix:   /
+    prefix:   /news
     resource: "@NewsBundle/Resources/config/routing.yml"
 
 forum:
