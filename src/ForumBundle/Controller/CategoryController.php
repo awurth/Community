@@ -127,9 +127,10 @@ class CategoryController extends RestController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $em = $this->getDoctrine()->getManager();
-
-        $category = $em->getRepository('ForumBundle:Category')->find($id);
+        $category = $this->getDoctrine()
+            ->getManager()
+            ->getRepository('ForumBundle:Category')
+            ->find($id);
 
         if (null === $category) {
             throw $this->createNotFoundException();
