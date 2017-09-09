@@ -45,7 +45,7 @@ class ForumTopicController extends RestController
      * )
      * @SWG\Parameter(
      *     name="id",
-     *     description="The category id",
+     *     description="The forum id",
      *     in="path",
      *     type="integer",
      *     required=true
