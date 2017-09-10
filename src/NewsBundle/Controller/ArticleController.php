@@ -158,7 +158,7 @@ class ArticleController extends RestController
      *     type="integer",
      *     required=true
      * )
-     * @SWG\Tag(name="forum")
+     * @SWG\Tag(name="news")
      */
     public function deleteArticleAction($id)
     {
