@@ -3,7 +3,6 @@
 namespace NewsBundle\Entity;
 
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -20,6 +19,13 @@ use UserBundle\Entity\User;
  *     href = @Hateoas\Route(
  *         "get_news_article",
  *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "category",
+ *     href = @Hateoas\Route(
+ *         "get_news_category",
+ *         parameters = { "id" = "expr(object.getCategory().getId())" }
  *     )
  * )
  * @Hateoas\Relation(
@@ -95,14 +101,16 @@ class Article
     protected $updatedAt;
 
     /**
-     * @var ArrayCollection
+     * @var Category
      *
-     * @Assert\Count(min=1)
+     * @Assert\NotNull
      *
-     * @ORM\ManyToMany(targetEntity="NewsBundle\Entity\Category")
-     * @ORM\JoinTable(name="news_article_category")
+     * @ORM\ManyToOne(targetEntity="NewsBundle\Entity\Category", cascade={"persist"}, inversedBy="articles")
+     * @ORM\JoinColumn(nullable=false)
+     *
+     * @JMS\Exclude
      */
-    protected $categories;
+    protected $category;
 
     /**
      * @var User
@@ -115,14 +123,6 @@ class Article
      * @JMS\Exclude
      */
     protected $author;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->categories = new ArrayCollection();
-    }
 
     /**
      * Gets the id.
@@ -279,41 +279,27 @@ class Article
     }
 
     /**
-     * Adds a category.
+     * Sets the category.
      *
      * @param Category $category
      *
      * @return self
      */
-    public function addCategory(Category $category)
+    public function setCategory(Category $category = null)
     {
-        $this->categories->add($category);
+        $this->category = $category;
 
         return $this;
     }
 
     /**
-     * Removes a category.
+     * Gets the category.
      *
-     * @param Category $category
-     *
-     * @return self
+     * @return Category
      */
-    public function removeCategory(Category $category)
+    public function getCategory()
     {
-        $this->categories->removeElement($category);
-
-        return $this;
-    }
-
-    /**
-     * Gets the categories.
-     *
-     * @return ArrayCollection
-     */
-    public function getCategories()
-    {
-        return $this->categories;
+        return $this->category;
     }
 
     /**

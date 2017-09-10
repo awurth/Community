@@ -27,7 +27,7 @@ class LoadArticleData extends AbstractFixture implements OrderedFixtureInterface
                 $article = new Article();
                 $article->setTitle("Category $i - Article $j");
                 $article->setContent("This is the article $j of category $i");
-                $article->addCategory($category);
+                $article->setCategory($category);
                 $article->setAuthor($admin);
 
                 $manager->persist($article);

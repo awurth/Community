@@ -3,9 +3,11 @@
 namespace NewsBundle\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -76,6 +78,15 @@ class Category
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
     protected $updatedAt;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="NewsBundle\Entity\Article", cascade={"remove"}, mappedBy="category")
+     *
+     * @JMS\Exclude
+     */
+    protected $articles;
 
 
     /**
@@ -206,6 +217,45 @@ class Category
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * Adds an article.
+     *
+     * @param Article $article
+     *
+     * @return self
+     */
+    public function addForum(Article $article)
+    {
+        $this->articles->add($article);
+        $article->setCategory($this);
+
+        return $this;
+    }
+
+    /**
+     * Removes an article.
+     *
+     * @param Article $article
+     *
+     * @return self
+     */
+    public function removeTopic(Article $article)
+    {
+        $this->articles->removeElement($article);
+
+        return $this;
+    }
+
+    /**
+     * Gets all articles.
+     *
+     * @return ArrayCollection
+     */
+    public function getArticles()
+    {
+        return $this->articles;
     }
 }
 
