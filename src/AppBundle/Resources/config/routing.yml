@@ -1,3 +1,7 @@
+app_home:
+    type: rest
+    resource: AppBundle\Controller\HomeController
+
 app_tag:
     type:     rest
     resource: AppBundle\Controller\TagController
