@@ -28,6 +28,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         parameters = { "id" = "expr(object.getForum().getId())" }
  *     )
  * )
+ * @Hateoas\Relation(
+ *     "posts",
+ *     href = @Hateoas\Route(
+ *         "get_forum_topic_posts",
+ *         parameters = { "id" = "expr(object.getId())" }
+ *     )
+ * )
  */
 class Topic
 {
