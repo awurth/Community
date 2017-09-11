@@ -2,7 +2,9 @@
 
 namespace NewsBundle\Entity;
 
+use AppBundle\Entity\Tag;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -101,6 +103,14 @@ class Article
     protected $updatedAt;
 
     /**
+     * @var ArrayCollection
+     *
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Tag")
+     * @ORM\JoinTable(name="news_article_tag")
+     */
+    protected $tags;
+
+    /**
      * @var Category
      *
      * @Assert\NotNull
@@ -123,6 +133,14 @@ class Article
      * @JMS\Exclude
      */
     protected $author;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
 
     /**
      * Gets the id.
@@ -276,6 +294,44 @@ class Article
     public function getUpdatedAt()
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * Adds a tag.
+     *
+     * @param Tag $tag
+     *
+     * @return self
+     */
+    public function addTag(Tag $tag)
+    {
+        $this->tags->add($tag);
+
+        return $this;
+    }
+
+    /**
+     * Removes a tag.
+     *
+     * @param Tag $tag
+     *
+     * @return self
+     */
+    public function removeTag(Tag $tag)
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    /**
+     * Gets the tags.
+     *
+     * @return ArrayCollection
+     */
+    public function getTags()
+    {
+        return $this->tags;
     }
 
     /**

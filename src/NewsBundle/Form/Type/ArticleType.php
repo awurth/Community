@@ -21,6 +21,10 @@ class ArticleType extends AbstractType
             ->add('title', TextType::class)
             ->add('content', TextareaType::class)
             ->add('published', CheckboxType::class)
+            ->add('tags', EntityType::class, [
+                'class' => 'AppBundle:Tag',
+                'multiple' => true
+            ])
             ->add('category', EntityType::class, [
                 'class' => 'NewsBundle:Category'
             ]);
