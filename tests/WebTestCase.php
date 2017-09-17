@@ -3,7 +3,8 @@
 namespace Tests;
 
 use Doctrine\ORM\EntityManager;
-use FOS\OAuthServerBundle\Model\ClientInterface;
+use Exception;
+use FOS\OAuthServerBundle\Model\ClientInterface as OAuthClient;
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
@@ -152,7 +153,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function createAdmin()
     {
-        return $this->createUser('super-admin', 'admin', 'super-admin@domain.com', true);
+        return $this->createUser('test-admin', 'admin', 'test-admin@domain.com', ['ROLE_ADMIN']);
     }
 
     /**
@@ -170,11 +171,16 @@ class WebTestCase extends BaseWebTestCase
     /**
      * Returns a client logged in as a normal user.
      *
+     * @param array  $roles
+     * @param string $username
+     * @param string $password
+     * @param string $email
+     *
      * @return Client
      */
-    public function createLoggedClient()
+    public function createLoggedClient(array $roles = [], $username = 'user', $password = 'user', $email = 'user@domain.com')
     {
-        $user = $this->createUser('user', 'user', 'user@domain.com');
+        $user = $this->createUser($username, $password, $email, $roles);
 
         $this->loginAs($user, 'main');
 
@@ -184,7 +190,7 @@ class WebTestCase extends BaseWebTestCase
     /**
      * Creates a new OAuth Client.
      *
-     * @return ClientInterface|mixed
+     * @return OAuthClient|mixed
      */
     public function createOAuthClient()
     {
@@ -204,15 +210,21 @@ class WebTestCase extends BaseWebTestCase
      * @param string $username
      * @param string $password
      * @param string $email
-     * @param bool   $admin
+     * @param array  $roles
      *
      * @return User
      */
-    public function createUser($username, $password, $email, $admin = false)
+    public function createUser($username, $password, $email, array $roles = [])
     {
         $manipulator = $this->getContainer()->get('fos_user.util.user_manipulator');
 
-        return $manipulator->create($username, $password, $email, true, $admin);
+        $user = $manipulator->create($username, $password, $email, true, false);
+
+        foreach ($roles as $role) {
+            $manipulator->addRole($username, $role);
+        }
+
+        return $user;
     }
 
     /**
@@ -281,7 +293,7 @@ class WebTestCase extends BaseWebTestCase
      */
     public function getFixtureClass($bundle, $entityName)
     {
-        return $bundle . 'Bundle\DataFixtures\ORM\Load' . $entityName . 'Data';
+        return $bundle . 'Bundle\\DataFixtures\\ORM\\Load' . $entityName . 'Data';
     }
 
     /**
@@ -298,16 +310,16 @@ class WebTestCase extends BaseWebTestCase
     /**
      * Log in with username and password and get an OAuth Access Token.
      *
-     * @param Client $client
-     * @param string $username
-     * @param string $password
-     * @param ClientInterface|null $oauthClient
+     * @param Client      $client
+     * @param string      $username
+     * @param string      $password
+     * @param OAuthClient $oauthClient
      *
      * @return string
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function logIn(Client $client, $username, $password, ClientInterface $oauthClient = null)
+    public function logIn(Client $client, $username, $password, OAuthClient $oauthClient = null)
     {
         if (null === $oauthClient) {
             $oauthClient = $this->createOAuthClient();
@@ -325,7 +337,7 @@ class WebTestCase extends BaseWebTestCase
 
         $data = json_decode($response->getContent(), true);
         if (!isset($data['access_token'])) {
-            throw new \Exception('Invalid response');
+            throw new Exception('Invalid response');
         }
 
         return $data['access_token'];

@@ -31,9 +31,16 @@ class LoadUserData extends AbstractFixture implements OrderedFixtureInterface, C
         $manipulator = $this->container->get('fos_user.util.user_manipulator');
 
         $admin = $manipulator->create('admin', 'admin', 'admin@domain.com', true, true);
+        $moderator = $manipulator->create('moderator', 'moderator', 'moderator@domain.com', true, false);
+        $author = $manipulator->create('author', 'author', 'author@domain.com', true, false);
         $user = $manipulator->create('awurth', 'awurth', 'awurth@domain.com', true, false);
 
+        $manipulator->addRole($moderator, 'ROLE_MODERATOR');
+        $manipulator->addRole($author, 'ROLE_AUTHOR');
+
         $this->addReference('admin', $admin);
+        $this->addReference('moderator', $moderator);
+        $this->addReference('author', $author);
         $this->addReference('user', $user);
     }
 
