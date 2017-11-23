@@ -3,7 +3,7 @@
 namespace UserBundle\Controller;
 
 use AppBundle\Controller\RestController;
-use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use UserBundle\Entity\User;
@@ -11,7 +11,8 @@ use UserBundle\Entity\User;
 class UserController extends RestController
 {
     /**
-     * @View
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Returns all users",
@@ -31,7 +32,8 @@ class UserController extends RestController
     }
 
     /**
-     * @View
+     * @Rest\View
+     *
      * @SWG\Response(
      *     response=200,
      *     description="Gets a user by it's id",
