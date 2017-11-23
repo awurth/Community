@@ -1,8 +1,3 @@
-news:
-    type:     rest
-    prefix:   /news
-    resource: "@NewsBundle/Resources/config/routing.yml"
-
 forum:
     type:     rest
     prefix:   /forum
@@ -11,9 +6,6 @@ forum:
 app:
     type:     rest
     resource: "@AppBundle/Resources/config/routing.yml"
-
-user:
-    resource: "@UserBundle/Resources/config/routing.yml"
 
 fos_oauth_server_token:
     resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"

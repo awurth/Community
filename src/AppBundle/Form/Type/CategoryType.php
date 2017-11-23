@@ -1,6 +1,6 @@
 <?php
 
-namespace NewsBundle\Form\Type;
+namespace AppBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -26,7 +26,7 @@ class CategoryType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'NewsBundle\Entity\Category'
+            'data_class' => 'AppBundle\Entity\Category'
         ]);
     }
 
@@ -35,6 +35,6 @@ class CategoryType extends AbstractType
      */
     public function getBlockPrefix()
     {
-        return 'news_category';
+        return 'app_article_category';
     }
 }

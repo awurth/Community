@@ -2,12 +2,12 @@
 
 namespace ForumBundle\DataFixtures\ORM;
 
+use AppBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use ForumBundle\Entity\Post;
 use ForumBundle\Entity\Topic;
-use UserBundle\Entity\User;
 
 class LoadPostData extends AbstractFixture implements OrderedFixtureInterface
 {

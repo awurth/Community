@@ -29,9 +29,7 @@ class AppKernel extends Kernel
             // App Bundles
             new AppBundle\AppBundle(),
             new ForumBundle\ForumBundle(),
-            new NewsBundle\NewsBundle(),
             new OAuthBundle\OAuthBundle(),
-            new UserBundle\UserBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

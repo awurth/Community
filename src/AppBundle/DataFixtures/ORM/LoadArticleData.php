@@ -1,13 +1,13 @@
 <?php
 
-namespace NewsBundle\DataFixtures\ORM;
+namespace AppBundle\DataFixtures\ORM;
 
+use AppBundle\Entity\Article;
+use AppBundle\Entity\Category;
+use AppBundle\Entity\User;
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use NewsBundle\Entity\Article;
-use NewsBundle\Entity\Category;
-use UserBundle\Entity\User;
 
 class LoadArticleData extends AbstractFixture implements OrderedFixtureInterface
 {

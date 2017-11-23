@@ -1,16 +1,16 @@
 <?php
 
-namespace Tests\NewsBundle\Controller;
+namespace Tests\AppBundle\Controller;
 
-use NewsBundle\Entity\Article;
-use NewsBundle\Entity\Category;
+use AppBundle\Entity\Article;
+use AppBundle\Entity\Category;
+use AppBundle\Entity\User;
 use Tests\WebTestCase;
 use Traversable;
-use UserBundle\Entity\User;
 
 class ArticleControllerTest extends WebTestCase
 {
-    const RESOURCE_URI = '/news/articles';
+    const RESOURCE_URI = '/articles';
 
     /**
      * @var Category
@@ -25,12 +25,12 @@ class ArticleControllerTest extends WebTestCase
         parent::setUp();
 
         $this->loadFixtures([
-            $this->getFixtureClass('User', 'User'),
-            $this->getFixtureClass('News', 'Category'),
-            $this->getFixtureClass('News', 'Article')
+            $this->getFixtureClass('App', 'User'),
+            $this->getFixtureClass('App', 'Category'),
+            $this->getFixtureClass('App', 'Article')
         ]);
 
-        $this->category = $this->findFirst('NewsBundle:Category');
+        $this->category = $this->findFirst('AppBundle:Category');
     }
 
     public function testGetArticles()
@@ -44,7 +44,7 @@ class ArticleControllerTest extends WebTestCase
 
     public function testGetArticle()
     {
-        $forum = $this->findFirst('NewsBundle:Article');
+        $forum = $this->findFirst('AppBundle:Article');
 
         $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $forum->getId());
 
@@ -64,7 +64,7 @@ class ArticleControllerTest extends WebTestCase
     public function testPostArticle()
     {
         $content = '{
-            "news_article": {
+            "app_article": {
                 "title": "Article title",
                 "content": "This is an article",
                 "published": true,
@@ -107,7 +107,7 @@ class ArticleControllerTest extends WebTestCase
     public function testPostArticleWithErrors()
     {
         $article = '{
-            "news_article": {
+            "app_article": {
                 "title": "",
                 "content": "",
                 "category": ""
@@ -122,14 +122,14 @@ class ArticleControllerTest extends WebTestCase
 
     public function testPutArticle()
     {
-        $user = $this->em->getRepository('UserBundle:User')->findOneBy(['username' => 'author']);
+        $user = $this->em->getRepository('AppBundle:User')->findOneBy(['username' => 'author']);
 
         $articleToUpdate = $this->createArticle($this->category, $user, 'New article');
 
         $this->assertNull($articleToUpdate->getUpdatedAt());
 
         $jsonArticle = '{
-            "news_article": {
+            "app_article": {
                 "title": "Updated article",
                 "content": "This is an updated article",
                 "category": ' . $articleToUpdate->getCategory()->getId() . '
@@ -146,7 +146,7 @@ class ArticleControllerTest extends WebTestCase
 
         // Test updated Article
         $this->em->clear();
-        $updatedArticle = $this->em->getRepository('NewsBundle:Article')->find($articleToUpdate->getId());
+        $updatedArticle = $this->em->getRepository('AppBundle:Article')->find($articleToUpdate->getId());
 
         $this->assertSame('Updated article', $updatedArticle->getTitle());
         $this->assertNotNull($updatedArticle->getUpdatedAt());
@@ -168,14 +168,14 @@ class ArticleControllerTest extends WebTestCase
     public function testPutArticleWithErrors()
     {
         $article = '{
-            "news_article": {
+            "app_article": {
                 "title": "",
                 "content": "",
                 "category": ""
             }
         }';
 
-        $articleToUpdate = $this->findFirst('NewsBundle:Article');
+        $articleToUpdate = $this->findFirst('AppBundle:Article');
 
         $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/' . $articleToUpdate->getId(), $article);
 
@@ -193,7 +193,7 @@ class ArticleControllerTest extends WebTestCase
 
     public function testDeleteArticle()
     {
-        $articleToDelete = $this->findFirst('NewsBundle:Article');
+        $articleToDelete = $this->findFirst('AppBundle:Article');
 
         $response = $this->delete($this->createLoggedClient(['ROLE_AUTHOR']), self::RESOURCE_URI . '/' . $articleToDelete->getId());
 
@@ -202,7 +202,7 @@ class ArticleControllerTest extends WebTestCase
 
         // Test deleted Article
         $this->em->clear();
-        $deletedArticle = $this->em->getRepository('NewsBundle:Article')->find($articleToDelete->getId());
+        $deletedArticle = $this->em->getRepository('AppBundle:Article')->find($articleToDelete->getId());
 
         $this->assertNull($deletedArticle);
     }

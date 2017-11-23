@@ -1,6 +1,6 @@
 <?php
 
-namespace NewsBundle\Form\Type;
+namespace AppBundle\Form\Type;
 
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -36,7 +36,7 @@ class ArticleType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => 'NewsBundle\Entity\Article'
+            'data_class' => 'AppBundle\Entity\Article'
         ]);
     }
 
@@ -45,6 +45,6 @@ class ArticleType extends AbstractType
      */
     public function getBlockPrefix()
     {
-        return 'news_article';
+        return 'app_article';
     }
 }

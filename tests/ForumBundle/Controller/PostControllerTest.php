@@ -2,10 +2,10 @@
 
 namespace Tests\ForumBundle\Controller;
 
+use AppBundle\Entity\User;
 use ForumBundle\Entity\Post;
 use ForumBundle\Entity\Topic;
 use Tests\WebTestCase;
-use UserBundle\Entity\User;
 
 class PostControllerTest extends WebTestCase
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\NewsBundle\Controller;
+namespace Tests\AppBundle\Controller;
 
-use NewsBundle\Entity\Category;
+use AppBundle\Entity\Category;
 use Tests\WebTestCase;
 
 class CategoryControllerTest extends WebTestCase
 {
-    const RESOURCE_URI = '/news/categories';
+    const RESOURCE_URI = '/categories';
 
     /**
      * {@inheritDoc}
@@ -16,7 +16,7 @@ class CategoryControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        $this->loadFixture('News', 'Category');
+        $this->loadFixture('App', 'Category');
     }
 
     public function testGetCategories()
@@ -30,7 +30,7 @@ class CategoryControllerTest extends WebTestCase
 
     public function testGetCategory()
     {
-        $category = $this->findFirst('NewsBundle:Category');
+        $category = $this->findFirst('AppBundle:Category');
 
         $response = $this->get($this->makeClient(), self::RESOURCE_URI . '/' . $category->getId());
 
@@ -50,7 +50,7 @@ class CategoryControllerTest extends WebTestCase
     public function testPostCategory()
     {
         $content = '{
-            "news_category": {
+            "app_article_category": {
                 "name": "Category name",
                 "description": "This is a category"
             }
@@ -85,7 +85,7 @@ class CategoryControllerTest extends WebTestCase
     public function testPostCategoryWithErrors()
     {
         $category = '{
-            "news_category": {
+            "app_article_category": {
                 "name": "",
                 "description": ""
             }
@@ -104,7 +104,7 @@ class CategoryControllerTest extends WebTestCase
         $this->assertNull($categoryToUpdate->getUpdatedAt());
 
         $jsonCategory = '{
-            "news_category": {
+            "app_article_category": {
                 "name": "Updated category",
                 "description": "This is an updated category"
             }
@@ -119,7 +119,7 @@ class CategoryControllerTest extends WebTestCase
 
         // Test updated Category
         $this->em->clear();
-        $updatedCategory = $this->em->getRepository('NewsBundle:Category')->find($categoryToUpdate->getId());
+        $updatedCategory = $this->em->getRepository('AppBundle:Category')->find($categoryToUpdate->getId());
 
         $this->assertSame('Updated category', $updatedCategory->getName());
         $this->assertNotNull($updatedCategory->getUpdatedAt());
@@ -141,13 +141,13 @@ class CategoryControllerTest extends WebTestCase
     public function testPutCategoryWithErrors()
     {
         $category = '{
-            "news_category": {
+            "app_article_category": {
                 "name": "",
                 "description": ""
             }
         }';
 
-        $categoryToUpdate = $this->findFirst('NewsBundle:Category');
+        $categoryToUpdate = $this->findFirst('AppBundle:Category');
 
         $response = $this->put($this->createAdminClient(), self::RESOURCE_URI . '/' . $categoryToUpdate->getId(), $category);
 
@@ -165,7 +165,7 @@ class CategoryControllerTest extends WebTestCase
 
     public function testDeleteCategory()
     {
-        $categoryToDelete = $this->findFirst('NewsBundle:Category');
+        $categoryToDelete = $this->findFirst('AppBundle:Category');
 
         $response = $this->delete($this->createAdminClient(), self::RESOURCE_URI . '/' . $categoryToDelete->getId());
 
@@ -174,7 +174,7 @@ class CategoryControllerTest extends WebTestCase
 
         // Test deleted Category
         $this->em->clear();
-        $deletedCategory = $this->em->getRepository('NewsBundle:Category')->find($categoryToDelete->getId());
+        $deletedCategory = $this->em->getRepository('AppBundle:Category')->find($categoryToDelete->getId());
 
         $this->assertNull($deletedCategory);
     }

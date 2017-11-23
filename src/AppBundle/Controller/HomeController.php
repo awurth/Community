@@ -19,8 +19,8 @@ class HomeController extends RestController
                 'posts'      => $this->generateUrl('get_forum_posts')
             ],
             'news' => [
-                'categories' => $this->generateUrl('get_news_categories'),
-                'articles'   => $this->generateUrl('get_news_articles')
+                'categories' => $this->generateUrl('get_article_categories'),
+                'articles'   => $this->generateUrl('get_articles')
             ],
             'oauth' => $this->generateUrl('fos_oauth_server_token'),
             'users' => $this->generateUrl('get_users')

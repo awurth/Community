@@ -1,7 +1,0 @@
-news_category:
-    type:     rest
-    resource: NewsBundle\Controller\CategoryController
-
-news_article:
-    type:     rest
-    resource: NewsBundle\Controller\ArticleController

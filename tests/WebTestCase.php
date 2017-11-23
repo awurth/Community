@@ -2,13 +2,13 @@
 
 namespace Tests;
 
+use AppBundle\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use FOS\OAuthServerBundle\Model\ClientInterface as OAuthClient;
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\Response;
-use UserBundle\Entity\User;
 
 class WebTestCase extends BaseWebTestCase
 {

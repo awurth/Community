@@ -1,20 +1,19 @@
 <?php
 
-namespace NewsBundle\Controller;
+namespace AppBundle\Controller;
 
-use AppBundle\Controller\RestController;
+use AppBundle\Entity\Article;
+use AppBundle\Form\Type\ArticleType;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use NewsBundle\Entity\Category;
-use NewsBundle\Form\Type\CategoryType;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
 
-class CategoryController extends RestController
+class ArticleController extends RestController
 {
     /**
-     * @Rest\Get(name="get_news_categories", options={ "method_prefix" = false })
+     * @Rest\Get(name="get_articles", options={ "method_prefix" = false })
      * @Rest\View
      *
      * @Rest\QueryParam(
@@ -33,24 +32,24 @@ class CategoryController extends RestController
      *     name="per_page",
      *     requirements="\d+",
      *     default="15",
-     *     description="Max number of categories per page"
+     *     description="Max number of articles per page"
      * )
      *
      * @SWG\Response(
      *     response=200,
-     *     description="Returns all news categories",
+     *     description="Returns all articles",
      *     @SWG\Schema(
      *         type="array",
-     *         @Model(type=Category::class)
+     *         @Model(type=Article::class)
      *     )
      * )
      * @SWG\Tag(name="news")
      */
-    public function getCategoriesAction(ParamFetcher $paramFetcher)
+    public function getArticlesAction(ParamFetcher $paramFetcher)
     {
         return $this->getDoctrine()
             ->getManager()
-            ->getRepository('NewsBundle:Category')
+            ->getRepository('AppBundle:Article')
             ->getCollection(
                 $paramFetcher->get('per_page'),
                 $paramFetcher->get('page'),
@@ -59,117 +58,120 @@ class CategoryController extends RestController
     }
 
     /**
-     * @Rest\Get(name="get_news_category", options={ "method_prefix" = false })
+     * @Rest\Get(name="get_article", options={ "method_prefix" = false })
      * @Rest\View
      *
      * @SWG\Response(
      *     response=200,
-     *     description="Gets a news category by it's id",
-     *     @Model(type=Category::class)
+     *     description="Gets an article by it's id",
+     *     @Model(type=Article::class)
      * )
      * @SWG\Parameter(
      *     name="id",
-     *     description="The category id",
+     *     description="The article id",
      *     in="path",
      *     type="integer",
      *     required=true
      * )
      * @SWG\Tag(name="news")
      */
-    public function getCategoryAction($id)
+    public function getArticleAction($id)
     {
-        $category = $this->getDoctrine()
+        $article = $this->getDoctrine()
             ->getManager()
-            ->getRepository('NewsBundle:Category')
+            ->getRepository('AppBundle:Article')
             ->find($id);
 
-        if (null === $category) {
+        if (null === $article) {
             throw $this->createNotFoundException();
         }
 
-        return $category;
+        return $article;
     }
 
     /**
-     * @Rest\Post(name="post_news_category", options={ "method_prefix" = false })
+     * @Rest\Post(name="post_article", options={ "method_prefix" = false })
      * @Rest\View
      *
      * @SWG\Response(
      *     response=201,
-     *     description="Creates a new news category"
+     *     description="Creates a new article"
      * )
      * @SWG\Tag(name="news")
      */
-    public function postCategoryAction(Request $request)
+    public function postArticleAction(Request $request)
     {
         $this->denyAccessUnlessGranted('ROLE_AUTHOR');
 
-        return $this->processForm(new Category(), $request, CategoryType::class, 'get_news_category');
+        $article = new Article();
+        $article->setAuthor($this->getUser());
+
+        return $this->processForm($article, $request, ArticleType::class, 'get_article');
     }
 
     /**
-     * @Rest\Put(name="put_news_category", options={ "method_prefix" = false })
+     * @Rest\Put(name="put_article", options={ "method_prefix" = false })
      * @Rest\View
      *
      * @SWG\Response(
      *     response=204,
-     *     description="Updates a news category"
+     *     description="Updates an article"
      * )
      * @SWG\Parameter(
      *     name="id",
-     *     description="The category id",
+     *     description="The article id",
      *     in="path",
      *     type="integer",
      *     required=true
      * )
      * @SWG\Tag(name="news")
      */
-    public function putCategoryAction($id, Request $request)
+    public function putArticleAction($id, Request $request)
     {
         $this->denyAccessUnlessGranted('ROLE_AUTHOR');
 
-        $category = $this->getDoctrine()
+        $article = $this->getDoctrine()
             ->getManager()
-            ->getRepository('NewsBundle:Category')
+            ->getRepository('AppBundle:Article')
             ->find($id);
 
-        if (null === $category) {
+        if (null === $article) {
             throw $this->createNotFoundException();
         }
 
-        return $this->processForm($category, $request, CategoryType::class);
+        return $this->processForm($article, $request, ArticleType::class);
     }
 
     /**
-     * @Rest\Delete(name="delete_news_category", options={ "method_prefix" = false })
+     * @Rest\Delete(name="delete_article", options={ "method_prefix" = false })
      * @Rest\View
      *
      * @SWG\Response(
      *     response=204,
-     *     description="Deletes a news category"
+     *     description="Deletes an article"
      * )
      * @SWG\Parameter(
      *     name="id",
-     *     description="The category id",
+     *     description="The article id",
      *     in="path",
      *     type="integer",
      *     required=true
      * )
      * @SWG\Tag(name="news")
      */
-    public function deleteCategoryAction($id)
+    public function deleteArticleAction($id)
     {
-        $this->denyAccessUnlessGranted('ROLE_MODERATOR');
+        $this->denyAccessUnlessGranted('ROLE_AUTHOR');
 
         $em = $this->getDoctrine()->getManager();
 
-        $category = $em->getRepository('NewsBundle:Category')->find($id);
+        $article = $em->getRepository('AppBundle:Article')->find($id);
 
-        if (null === $category) {
+        if (null === $article) {
             throw $this->createNotFoundException();
         }
 
-        $em->remove($category);
+        $em->remove($article);
         $em->flush();
 
         return null;

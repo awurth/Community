@@ -2,11 +2,11 @@
 
 namespace ForumBundle\Entity;
 
+use AppBundle\Entity\User;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use UserBundle\Entity\User;
-use Hateoas\Configuration\Annotation as Hateoas;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -79,7 +79,7 @@ class Post
      *
      * @Assert\NotNull
      *
-     * @ORM\ManyToOne(targetEntity="UserBundle\Entity\User", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      *
      * @JMS\Exclude

@@ -2,6 +2,18 @@ app_home:
     type: rest
     resource: AppBundle\Controller\HomeController
 
+app_user:
+    type: rest
+    resource: AppBundle\Controller\UserController
+
 app_tag:
     type:     rest
     resource: AppBundle\Controller\TagController
+
+app_article_category:
+    type:     rest
+    resource: AppBundle\Controller\CategoryController
+
+app_article:
+    type:     rest
+    resource: AppBundle\Controller\ArticleController

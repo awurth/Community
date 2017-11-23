@@ -1,6 +1,6 @@
 <?php
 
-namespace UserBundle\DataFixtures\ORM;
+namespace OAuthBundle\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
 use Doctrine\Common\Persistence\ObjectManager;

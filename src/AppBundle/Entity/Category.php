@@ -1,6 +1,6 @@
 <?php
 
-namespace NewsBundle\Entity;
+namespace AppBundle\Entity;
 
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,13 +11,13 @@ use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="NewsBundle\Repository\CategoryRepository")
- * @ORM\Table(name="news_category")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\CategoryRepository")
+ * @ORM\Table(name="article_category")
  *
  * @Hateoas\Relation(
  *     "self",
  *     href = @Hateoas\Route(
- *         "get_news_category",
+ *         "get_article_category",
  *         parameters = { "id" = "expr(object.getId())" }
  *     )
  * )
@@ -82,7 +82,7 @@ class Category
     /**
      * @var ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="NewsBundle\Entity\Article", cascade={"remove"}, mappedBy="category")
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Article", cascade={"remove"}, mappedBy="category")
      *
      * @JMS\Exclude
      */

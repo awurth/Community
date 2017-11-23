@@ -1,6 +1,6 @@
 <?php
 
-namespace UserBundle\Entity;
+namespace AppBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,6 +29,9 @@ class User extends BaseUser
      */
     protected $id;
 
+    /**
+     * Constructor.
+     */
     public function __construct()
     {
         parent::__construct();

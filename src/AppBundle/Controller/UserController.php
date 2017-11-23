@@ -1,12 +1,11 @@
 <?php
 
-namespace UserBundle\Controller;
+namespace AppBundle\Controller;
 
-use AppBundle\Controller\RestController;
+use AppBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
-use UserBundle\Entity\User;
 
 class UserController extends RestController
 {
@@ -27,7 +26,7 @@ class UserController extends RestController
     {
         return $this->getDoctrine()
             ->getManager()
-            ->getRepository('UserBundle:User')
+            ->getRepository('AppBundle:User')
             ->findAll();
     }
 
@@ -52,7 +51,7 @@ class UserController extends RestController
     {
         $user = $this->getDoctrine()
             ->getManager()
-            ->getRepository('UserBundle:User')
+            ->getRepository('AppBundle:User')
             ->find($id);
 
         if (null === $user) {

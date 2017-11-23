@@ -7,9 +7,7 @@
         "psr-4": {
             "AppBundle\\": "src/AppBundle",
             "ForumBundle\\": "src/ForumBundle",
-            "NewsBundle\\": "src/NewsBundle",
-            "OAuthBundle\\": "src/OAuthBundle",
-            "UserBundle\\": "src/UserBundle"
+            "OAuthBundle\\": "src/OAuthBundle"
         },
         "classmap": [
             "app/AppKernel.php",
@@ -18,7 +16,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests"
         },
         "files": [
             "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php"

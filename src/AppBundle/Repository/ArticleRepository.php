@@ -1,8 +1,6 @@
 <?php
 
-namespace NewsBundle\Repository;
-
-use AppBundle\Repository\PaginationRepository;
+namespace AppBundle\Repository;
 
 class ArticleRepository extends PaginationRepository
 {
